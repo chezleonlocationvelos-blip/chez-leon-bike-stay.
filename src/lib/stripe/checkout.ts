@@ -82,9 +82,11 @@ export async function createDepositCheckout(token: string, tokenHash: string, no
     client_reference_id: r.number,
     metadata: meta,
     payment_intent_data: { capture_method: "manual", metadata: meta },
-    payment_method_options: {
-      card: { request_extended_authorization: r.billed_days >= EXTENDED_AUTH_FROM_DAYS ? "if_available" : "never" },
-    },
+    // L'autorisation étendue est une fonction réservée : Stripe refuse même la valeur "never" si le compte n'y est pas éligible.
+    // On n'envoie donc l'option que si elle est activée explicitement (STRIPE_EXTENDED_AUTH=true) et pour les longues locations.
+    ...(process.env.STRIPE_EXTENDED_AUTH === "true" && r.billed_days >= EXTENDED_AUTH_FROM_DAYS
+      ? { payment_method_options: { card: { request_extended_authorization: "if_available" as const } } }
+      : {}),
     expires_at: Math.floor(Date.now() / 1000) + 30 * 60 + 30,
     success_url: `${appUrl()}/r/${token}?deposit=1`,
     cancel_url: `${appUrl()}/r/${token}`,

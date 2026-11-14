@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Chez Léon Bike & Stay",
+    "demoBanner": "Mode démonstration : paiements, cautions et cadenas sont simulés."
+  },
+  "nav": {
+    "admin": "Administration",
+    "partner": "Espace hébergeur",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "dashboard": "Tableau de bord",
+    "accommodations": "Hébergements",
+    "bikes": "Vélos"
+  },
+  "login": {
+    "title": "Connexion",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "error": "Identifiants invalides."
+  },
+  "admin": {
+    "title": "Tableau de bord administrateur"
+  },
+  "partner": {
+    "title": "Tableau de bord hébergeur"
+  },
+  "accommodations": {
+    "title": "Hébergements",
+    "name": "Nom",
+    "city": "Ville",
+    "commission": "Commission",
+    "status": "Statut",
+    "bikes": "Vélos",
+    "link": "Lien public",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "empty": "Aucun hébergement."
+  },
+  "bikes": {
+    "title": "Vélos",
+    "code": "Code",
+    "type": "Type",
+    "accommodation": "Hébergement",
+    "status": "Statut",
+    "empty": "Aucun vélo.",
+    "unassigned": "Non affecté"
+  }
+}

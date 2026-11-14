@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Chez Léon Bike & Stay",
+    "demoBanner": "Demo mode: payments, deposits and locks are simulated."
+  },
+  "nav": {
+    "admin": "Administration",
+    "partner": "Partner area",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "dashboard": "Dashboard",
+    "accommodations": "Accommodations",
+    "bikes": "Bikes"
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email address",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Invalid credentials."
+  },
+  "admin": {
+    "title": "Admin dashboard"
+  },
+  "partner": {
+    "title": "Partner dashboard"
+  },
+  "accommodations": {
+    "title": "Accommodations",
+    "name": "Name",
+    "city": "City",
+    "commission": "Commission",
+    "status": "Status",
+    "bikes": "Bikes",
+    "link": "Public link",
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty": "No accommodation."
+  },
+  "bikes": {
+    "title": "Bikes",
+    "code": "Code",
+    "type": "Type",
+    "accommodation": "Accommodation",
+    "status": "Status",
+    "empty": "No bike.",
+    "unassigned": "Unassigned"
+  }
+}

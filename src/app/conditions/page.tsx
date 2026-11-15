@@ -21,9 +21,9 @@ export default function Conditions() {
 
       <H2>3. Conditions pour louer</H2>
       <p>
-        Le locataire doit avoir 18 ans révolus, être apte à la pratique du vélo et n&apos;avoir aucune contre-indication médicale. Il utilise lui-même le
-        matériel : le prêt, la sous-location et la cession à un tiers sont interdits. Un mineur ne peut utiliser un vélo que sous la responsabilité d&apos;un
-        adulte qui a réservé et qui répond de lui. Le locataire déclare être couvert par une assurance de responsabilité civile (par exemple celle de son
+        Le locataire qui réserve doit avoir 18 ans révolus, être apte à la pratique du vélo et n&apos;avoir aucune contre-indication médicale. L&apos;utilisateur
+        du vélo doit avoir au moins 6 ans le jour du retrait ; un mineur utilise le matériel sous la seule responsabilité de l&apos;adulte qui a réservé et qui
+        répond de lui. Le matériel est utilisé uniquement par les personnes déclarées : le prêt, la sous-location et la cession à un tiers sont interdits. Le locataire déclare être couvert par une assurance de responsabilité civile (par exemple celle de son
         contrat d&apos;assurance habitation) pour les dommages qu&apos;il pourrait causer à autrui.
       </p>
 
@@ -40,14 +40,19 @@ export default function Conditions() {
       <p>
         Une journée de location court de 9 h 00 à 18 h 30 ; une demi-journée correspond à un créneau de 4 heures. Les vélos doivent être restitués dans
         l&apos;hébergement avant la fin de la période réservée, cadenassés, avec leurs accessoires. En cas de retour tardif, chaque journée entamée au-delà de
-        la période réservée est facturée au tarif de la location en vigueur, prélevée sur la caution. Un vélo non restitué plus de 24 heures après la fin
-        de la période réservée, sans accord de Chez Léon, est considéré comme perdu ou volé (article 6).
+        la période réservée est facturée au tarif de la location en vigueur, prélevée sur la caution. Une prolongation n&apos;est possible qu&apos;avec l&apos;accord de Chez Léon, demandé avant la fin
+        de la location en cours ; Chez Léon peut la refuser. Un vélo non restitué plus de 24 heures après la fin de la période réservée, sans accord de
+        Chez Léon, est considéré comme perdu ou volé (article 6).
       </p>
 
       <H2>6. Responsabilité du locataire, dommages, perte et vol</H2>
       <p>
-        Le locataire reçoit le matériel en bon état de fonctionnement et le restitue dans le même état, hors usure normale. Il l&apos;utilise avec soin,
-        respecte le code de la route et reste seul responsable de son comportement, de ses effets personnels et des dommages causés à lui-même ou à autrui.
+        Le locataire prend en charge le matériel en bon état de fonctionnement et le restitue dans le même état, hors usure normale. Toute réclamation sur
+        l&apos;état du matériel doit être faite au retrait : Chez Léon ne peut être tenue responsable d&apos;une défaillance ultérieure. Le locataire l&apos;utilise avec
+        soin, respecte le code de la route et reste responsable des dommages corporels et matériels qu&apos;il cause à l&apos;occasion de l&apos;utilisation du matériel
+        (article 1242 du Code civil). Chez Léon ne peut être tenue responsable des dommages causés ou subis par le locataire pendant la location. L&apos;utilisation
+        en compétition, ou pour une conduite analogue, est interdite. Un casque homologué est mis à disposition gratuitement : en cas de chute, le locataire
+        doit le signaler à Chez Léon.
         Il s&apos;engage à attacher le vélo à un point fixe avec l&apos;antivol fourni dès qu&apos;il le laisse sans surveillance, y compris pendant une courte pause.
         Il signale sans délai toute panne ou tout incident.
       </p>
@@ -65,7 +70,8 @@ export default function Conditions() {
         Conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation de 14 jours ne s&apos;applique pas aux prestations de loisirs
         fournies à une date déterminée. Chez Léon accorde cependant les facilités suivantes : annulation gratuite et remboursement intégral jusqu&apos;à 7 jours
         avant le début de la location ; entre 7 jours et 48 heures avant, remboursement de 50 % ; moins de 48 heures avant ou en cas de non-présentation,
-        aucun remboursement. Une modification de dates est possible sans frais jusqu&apos;à 48 heures avant, dans la limite des disponibilités.
+        aucun remboursement. Une modification de dates est possible sans frais jusqu&apos;à 48 heures avant, dans la limite des disponibilités. Toute réservation est annulée,
+        sans remboursement, si le locataire ne se présente pas dans les deux heures suivant l&apos;heure prévue sans avoir prévenu de son retard.
       </p>
       <p>
         La pluie ne donne pas droit à remboursement. En cas d&apos;alerte météo orange ou rouge de Météo-France sur le Cher ou l&apos;Indre-et-Loire le jour de la
@@ -86,7 +92,8 @@ export default function Conditions() {
       <H2>10. Droit applicable et litiges</H2>
       <p>
         Droit français. En cas de litige, le locataire contacte d&apos;abord Chez Léon par écrit à reservationschezleon@gmail.com. À défaut de solution amiable,
-        le locataire consommateur peut recourir gratuitement au médiateur de la consommation : [À COMPLÉTER : nom et coordonnées du médiateur].
+        les parties s&apos;engagent d&apos;abord à rechercher une solution amiable, notamment par conciliation, avant toute action en justice. Le locataire consommateur peut
+        aussi recourir gratuitement au médiateur de la consommation : [À COMPLÉTER : nom et coordonnées du médiateur].
       </p>
     </LegalPage>
   );

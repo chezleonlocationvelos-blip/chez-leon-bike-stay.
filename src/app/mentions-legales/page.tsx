@@ -10,11 +10,12 @@ export default function Mentions() {
         Chez Léon, entreprise individuelle exploitée par Antoine Breton.<br />
         SIREN : 939 732 301 – SIRET : 939 732 301 00014.<br />
         Adresse : Chez Léon, 38 rue Principale, 37510 Savonnières.<br />
+        Téléphone : 06 44 80 71 89.<br />
         Email : reservationschezleon@gmail.com.<br />
         Activité : location d&apos;articles de loisirs et de sport (code APE 77.21Z).<br />
+        TVA non applicable, article 293 B du CGI.<br />
         Directeur de la publication : Antoine Breton.
       </p>
-      <p>[À COMPLÉTER : numéro de téléphone et numéro de TVA, ou mention « TVA non applicable, article 293 B du CGI » si vous êtes en franchise en base.]</p>
       <H2>Hébergement</H2>
       <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis [À VÉRIFIER].</p>
       <H2>Propriété intellectuelle</H2>

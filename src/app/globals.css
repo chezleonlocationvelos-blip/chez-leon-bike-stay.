@@ -3,4 +3,5 @@
 @tailwind utilities;
 
 body { @apply bg-cream text-charcoal antialiased; }
+h1, h2 { @apply font-display; }
 :focus-visible { @apply outline-2 outline-offset-2 outline-forest; }

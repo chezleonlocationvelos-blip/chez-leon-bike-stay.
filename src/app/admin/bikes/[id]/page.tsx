@@ -4,7 +4,7 @@ import { updateBike } from "../update-action";
 import { MANUAL_BIKE_STATUSES } from "@/lib/validation/admin";
 import { Button } from "@/components/ui/Button";
 
-const input = "min-h-12 rounded-xl2 border border-sage bg-white px-4";
+const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const statusLabels: Record<string, string> = {
   available: "Disponible", unavailable: "Indisponible", maintenance: "En maintenance",
   pending_check: "En attente de contrôle", stolen: "Volé", retired: "Retiré de la flotte",
@@ -48,7 +48,7 @@ export default async function EditBike({
             {(accs ?? []).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select></label>
         <label className="flex flex-col gap-1">Commentaires
-          <textarea name="notes" defaultValue={bike.notes ?? ""} rows={3} disabled={locked} className="rounded-xl2 border border-sage bg-white p-4" /></label>
+          <textarea name="notes" defaultValue={bike.notes ?? ""} rows={3} disabled={locked} className="rounded-xl2 border border-line bg-white p-4" /></label>
         <Button type="submit" disabled={locked}>Enregistrer</Button>
       </form>
 

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { SiteHeader } from "@/components/SiteHeader";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/reservations/token";
 import { euros, formatParis } from "@/lib/format";
@@ -43,8 +44,10 @@ export default async function ReservationPage({
   };
 
   return (
+    <>
+    <SiteHeader />
     <main className="mx-auto flex max-w-xl flex-col gap-5 p-6">
-      <h1 className="text-2xl font-bold text-forest">Réservation {r.number}</h1>
+      <h1 className="text-5xl font-bold text-forest">Réservation {r.number}</h1>
 
       <section className="rounded-xl2 bg-white p-4">
         <p className="font-medium">{acc.name}</p>
@@ -60,7 +63,7 @@ export default async function ReservationPage({
           {(r.reservation_accessories as unknown as { quantity: number; unit_price_cents: number; accessories: { label: string } }[]).map((i, k) => (
             <li key={`a${k}`} className="flex justify-between"><span>{i.quantity} × {i.accessories.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>
           ))}
-          <li className="flex justify-between border-t border-sage pt-2 font-semibold"><span>Total</span><span>{euros(r.total_cents)}</span></li>
+          <li className="flex justify-between border-t border-line pt-2 font-semibold"><span>Total</span><span>{euros(r.total_cents)}</span></li>
           <li className="flex justify-between text-sm"><span>Caution (empreinte bancaire, non débitée)</span><span>{euros(r.deposit_amount_cents)}</span></li>
         </ul>
       </section>
@@ -116,5 +119,6 @@ export default async function ReservationPage({
         </section>
       )}
     </main>
+    </>
   );
 }

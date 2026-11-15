@@ -3,7 +3,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { createPartner } from "./actions";
 import { Button } from "@/components/ui/Button";
 
-const input = "min-h-12 rounded-xl2 border border-sage bg-white px-4";
+const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const errors: Record<string, string> = {
   validation: "Email invalide ou mot de passe trop court (12 caractères minimum).",
   exists: "Un compte existe déjà avec cet email.",

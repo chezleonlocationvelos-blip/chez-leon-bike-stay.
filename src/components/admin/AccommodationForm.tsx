@@ -7,7 +7,7 @@ type Values = Partial<{
   access_hours: string; access_instructions: string; commission_bps: number; is_active: boolean;
 }>;
 
-const input = "min-h-12 rounded-xl2 border border-sage bg-white px-4";
+const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 
 function Field({ label, name, defaultValue, type = "text", required = false, hint }: {
   label: string; name: string; defaultValue?: string | number | null; type?: string; required?: boolean; hint?: string;

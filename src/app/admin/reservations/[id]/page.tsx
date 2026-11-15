@@ -72,7 +72,7 @@ export default async function ReservationDetail({
         <ul className="flex flex-col gap-1">
           {items.map((i, k) => <li key={k} className="flex justify-between"><span>{i.quantity} × {i.bike_types.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>)}
           {accs.map((i, k) => <li key={`a${k}`} className="flex justify-between"><span>{i.quantity} × {i.accessories.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>)}
-          <li className="flex justify-between border-t border-sage pt-2 font-semibold"><span>Total</span><span>{euros(r.total_cents)}</span></li>
+          <li className="flex justify-between border-t border-line pt-2 font-semibold"><span>Total</span><span>{euros(r.total_cents)}</span></li>
           <li className="flex justify-between text-sm"><span>Commission hébergeur ({acc.commission_bps / 100} %)</span><span>{euros(commission)}</span></li>
         </ul>
       </div>
@@ -90,10 +90,10 @@ export default async function ReservationDetail({
           <h2 className="text-lg font-semibold">Clôturer la location</h2>
           <input type="hidden" name="id" value={r.id} />
           <label className="flex flex-col gap-1">Montant du dommage à prélever sur la caution (€)
-            <input name="damage_eur" type="number" min="0" max={r.deposit_amount_cents / 100} step="0.01" defaultValue="0" required className="min-h-12 rounded-xl2 border border-sage px-4" />
+            <input name="damage_eur" type="number" min="0" max={r.deposit_amount_cents / 100} step="0.01" defaultValue="0" required className="min-h-12 rounded-xl2 border border-line px-4" />
             <span className="text-sm">0 = l'empreinte est libérée. Maximum : {euros(r.deposit_amount_cents)}. Le reste de l'empreinte est libéré automatiquement.</span></label>
           <label className="flex flex-col gap-1">Constat (obligatoire en cas de dommage)
-            <textarea name="notes" rows={3} className="rounded-xl2 border border-sage p-3" /></label>
+            <textarea name="notes" rows={3} className="rounded-xl2 border border-line p-3" /></label>
           <Button type="submit">Clôturer</Button>
         </form>
       )}

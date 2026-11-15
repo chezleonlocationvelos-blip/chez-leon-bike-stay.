@@ -1,7 +1,7 @@
 import { changePassword } from "./actions";
 import { Button } from "@/components/ui/Button";
 
-const input = "min-h-12 rounded-xl2 border border-sage bg-white px-4";
+const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 
 export default async function PasswordPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const { error, saved } = await searchParams;

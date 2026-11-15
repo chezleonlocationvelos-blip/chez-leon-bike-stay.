@@ -1,18 +1,24 @@
 import type { Config } from "tailwindcss";
 
-// Palette proposée dans le cahier des charges, adaptable à l'identité Chez Léon.
+// Charte reprise du site chezleonlocation.com : fond clair, vert sauge, beige.
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        forest: "#234F3E",
-        sage: "#91A98F",
-        cream: "#F7F4ED",
-        charcoal: "#26332D",
-        accent: "#D99A55",
+        forest: "#3F4F25",   // vert foncé : titres et textes (lisible sur fond clair)
+        sage: "#809758",     // vert sauge du site : bandeaux, accents
+        cream: "#F9F9F9",    // fond du site
+        charcoal: "#2F3D19", // texte principal
+        accent: "#EAD6B5",   // beige des boutons du site
+        line: "#D5DCC8",     // contours discrets des champs et cartes
       },
-      borderRadius: { xl2: "1.25rem" },
+      borderRadius: { xl2: "3px" },
+      fontFamily: {
+        sans: ["var(--font-roboto)", "Roboto", "sans-serif"],
+        display: ["var(--font-amatic)", "'Amatic SC'", "sans-serif"],
+        button: ["var(--font-lato)", "Lato", "sans-serif"],
+      },
     },
   },
   plugins: [],

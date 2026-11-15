@@ -2,7 +2,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createBike } from "../actions";
 import { Button } from "@/components/ui/Button";
 
-const input = "min-h-12 rounded-xl2 border border-sage bg-white px-4";
+const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const errors: Record<string, string> = {
   validation: "Champs invalides. Le code doit ressembler à ELEC-001 ou CLASS-001.",
   duplicate: "Ce code ou ce numéro de série existe déjà.",

@@ -5,17 +5,21 @@ import { handleStripeEvent } from "@/lib/stripe/webhook";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  // Deux points de terminaison Stripe peuvent coexister : celui de la plateforme et celui des comptes connectés (Connect),
+  // chacun avec son propre secret de signature.
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter((s): s is string => !!s);
   const signature = request.headers.get("stripe-signature");
-  if (!secret || !signature) return new NextResponse("Bad request", { status: 400 });
+  if (secrets.length === 0 || !signature) return new NextResponse("Bad request", { status: 400 });
 
   const body = await request.text(); // corps brut indispensable à la vérification de signature
   let event;
-  try {
-    event = getStripe().webhooks.constructEvent(body, signature, secret);
-  } catch {
-    return new NextResponse("Invalid signature", { status: 400 });
+  for (const secret of secrets) {
+    try {
+      event = getStripe().webhooks.constructEvent(body, signature, secret);
+      break;
+    } catch { /* on essaie le secret suivant */ }
   }
+  if (!event) return new NextResponse("Invalid signature", { status: 400 });
 
   try {
     const result = await handleStripeEvent(event);

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { euros, todayParis } from "@/lib/format";
 import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ACCOMMODATION_PHOTOS } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const errors: Record<string, string> = {
@@ -41,12 +42,16 @@ export default async function AccommodationPage({
   const slots = Array.isArray(s?.value) ? s.value : DEFAULT_SLOTS;
   const today = todayParis();
   const submit = submitReservation.bind(null, slug);
+  const photo = ACCOMMODATION_PHOTOS[slug];
 
   return (
     <>
     <SiteHeader />
-    <section className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage">
-      <div className="mx-auto flex max-w-xl flex-col justify-end px-6 pb-6 pt-14">
+    <section
+      className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
+      style={photo ? { backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.15) 0%, rgba(47,61,25,0.7) 100%), url(${photo})` } : undefined}
+    >
+      <div className={`mx-auto flex max-w-xl flex-col justify-end px-6 pb-6 ${photo ? "pt-32" : "pt-14"}`}>
         <h1 className="text-6xl font-bold leading-[0.95] text-white">Louer un vélo</h1>
         <p className="mt-2 text-white">{acc.name}{acc.city ? `, ${acc.city}` : ""}</p>
       </div>

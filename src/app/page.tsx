@@ -88,6 +88,7 @@ export default function Home() {
           <a className="underline" href="/confidentialite">Confidentialité</a>
           <a className="underline" href="/mentions-legales">Mentions légales</a>
           <a className="underline" href="/login">Espace hébergeur et administration</a>
+          <a className="underline" href="/demo">Démonstration</a>
         </footer>
       </main>
     </>

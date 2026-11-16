@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { euros, todayParis } from "@/lib/format";
 import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ACCOMMODATION_PHOTOS } from "@/lib/photos";
+import { ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const errors: Record<string, string> = {
@@ -42,7 +42,7 @@ export default async function AccommodationPage({
   const slots = Array.isArray(s?.value) ? s.value : DEFAULT_SLOTS;
   const today = todayParis();
   const submit = submitReservation.bind(null, slug);
-  const photo = ACCOMMODATION_PHOTOS[slug];
+  const photo = ACCOMMODATION_PHOTOS[slug] ?? DEFAULT_ACCOMMODATION_PHOTO;
 
   return (
     <>

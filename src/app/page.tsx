@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/SiteHeader";
+import { PHOTOS } from "@/lib/photos";
 
 export const metadata = {
   title: "Chez Léon Bike & Stay – vélos en libre-service en Touraine",
@@ -15,8 +16,11 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <section className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage">
-        <div className="mx-auto flex max-w-xl flex-col px-6 pb-8 pt-14">
+      <section
+        className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
+        style={{ backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.2) 0%, rgba(47,61,25,0.78) 100%), url(${PHOTOS.veloColza})` }}
+      >
+        <div className="mx-auto flex max-w-xl flex-col px-6 pb-8 pt-40">
           <h1 className="text-6xl font-bold leading-[0.95] text-white">Des vélos pour explorer la Touraine</h1>
           <p className="mt-3 text-white">
             Chez Léon Bike &amp; Stay : la location de vélos en libre-service, directement depuis votre hébergement, sur l'itinéraire de la Loire à Vélo.
@@ -39,6 +43,18 @@ export default function Home() {
             ))}
           </ol>
           <p className="mt-3 text-sm">Une caution par empreinte bancaire est demandée avant le retrait : rien n'est débité.</p>
+        </section>
+
+        <section className="overflow-hidden rounded-xl2 border border-line bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={PHOTOS.velosChezLeon} alt="Deux vélos Chez Léon appuyés à un muret au bord d'un canal" className="h-48 w-full object-cover" />
+          <p className="p-4 text-sm">Des vélos neufs, entretenus et prêts à partir, classiques ou à assistance électrique.</p>
+        </section>
+
+        <section className="overflow-hidden rounded-xl2 border border-line bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={PHOTOS.savonnieres} alt="Panneau d'entrée de Savonnières, au bord du Cher" className="h-48 w-full object-cover" />
+          <p className="p-4 text-sm">Chez Léon est installé à Savonnières, en Touraine, au cœur du Val de Loire.</p>
         </section>
 
         <section className="rounded-xl2 bg-accent p-5 text-forest">

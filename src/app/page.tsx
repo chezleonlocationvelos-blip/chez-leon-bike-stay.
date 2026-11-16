@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { PHOTOS } from "@/lib/photos";
+import { PartnersSection } from "@/components/PartnersSection";
 
 export const metadata = {
   title: "Chez Léon Bike & Stay – vélos en libre-service en Touraine",
@@ -11,6 +12,8 @@ const steps = [
   { n: "2", title: "Réservez", text: "Choisissez vos dates et votre vélo, classique ou électrique, et payez en ligne depuis votre téléphone." },
   { n: "3", title: "Partez", text: "Récupérez votre vélo en libre-service avec votre code d'accès. Casque et antivol inclus." },
 ];
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
@@ -29,6 +32,8 @@ export default function Home() {
       </section>
 
       <main className="mx-auto flex max-w-xl flex-col gap-8 p-6">
+        <PartnersSection />
+
         <section>
           <h2 className="mb-3 font-display text-4xl font-bold text-forest">Comment ça marche</h2>
           <ol className="flex flex-col gap-3">

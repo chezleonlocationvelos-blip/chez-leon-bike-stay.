@@ -9,7 +9,7 @@ import { declareReturn } from "./actions";
 export default async function PartnerHome() {
   const supabase = await createSupabaseServerClient();
   const [{ data: accs }, { data: bikes }, { data: reservations }] = await Promise.all([
-    supabase.from("accommodations").select("id, name, commission_bps"),
+    supabase.from("accommodations").select("id, name, slug, commission_bps"),
     supabase.from("bikes").select("id, internal_code, status, bike_types(label)").order("internal_code"),
     supabase.from("reservations").select("id, number, status, start_at, end_at, total_cents, accommodation_id")
       .in("status", ["confirmed", "access_preparing", "ready", "in_progress", "return_declared", "completed"])
@@ -28,6 +28,23 @@ export default async function PartnerHome() {
         <p className="text-sm">Commission estimée sur les réservations confirmées ou terminées (100 dernières)</p>
         <p className="text-3xl font-bold">{euros(commission)}</p>
         <p className="text-sm text-charcoal/70">Estimation indicative. Le versement réel passera par Stripe Connect.</p>
+      </div>
+
+      <div className="rounded-xl2 border border-line bg-white p-4">
+        <h2 className="mb-2 font-display text-3xl font-bold text-forest">Votre QR code</h2>
+        <p className="mb-3 text-sm">Affichez-le à l'accueil ou dans vos hébergements : vos clients le scannent pour réserver un vélo.</p>
+        {(accs ?? []).map((a) => (
+          <div key={a.id} className="mb-4 flex flex-wrap items-center gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/partner/qr?acc=${a.id}`} alt={`QR code de réservation : ${a.name}`} width={160} height={160} className="h-40 w-40" />
+            <div className="flex flex-col gap-2 text-sm">
+              <span className="font-medium">{a.name}</span>
+              <a className="underline" href={`/h/${a.slug}`} target="_blank" rel="noreferrer">Voir la page de réservation</a>
+              <a className="underline" href={`/partner/qr?acc=${a.id}&format=png`}>Télécharger en PNG (impression, réseaux sociaux)</a>
+              <a className="underline" href={`/partner/qr?acc=${a.id}&format=svg-download`}>Télécharger en SVG (affiche, grande taille)</a>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div>

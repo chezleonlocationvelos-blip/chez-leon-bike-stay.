@@ -48,7 +48,7 @@ export default function Home() {
         <section className="overflow-hidden rounded-xl2 border border-line bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={PHOTOS.velosChezLeon} alt="Deux vélos Chez Léon appuyés à un muret au bord d'un canal" className="h-48 w-full object-cover" />
-          <p className="p-4 text-sm">Des vélos neufs, entretenus et prêts à partir, classiques ou à assistance électrique.</p>
+          <p className="p-4 text-sm">Des vélos prêts à partir, classiques ou à assistance électrique.</p>
         </section>
 
         <section className="overflow-hidden rounded-xl2 border border-line bg-white">

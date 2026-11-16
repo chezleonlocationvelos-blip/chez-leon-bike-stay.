@@ -46,7 +46,7 @@ export default async function ReservationPage({
   return (
     <>
     <SiteHeader />
-    <main className="mx-auto flex max-w-xl flex-col gap-5 p-6">
+    <main className="mx-auto flex max-w-3xl flex-col gap-5 p-6">
       <h1 className="text-5xl font-bold text-forest">Réservation {r.number}</h1>
 
       <section className="rounded-xl2 bg-white p-4">

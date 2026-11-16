@@ -51,20 +51,21 @@ export default async function AccommodationPage({
       className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
       style={photo ? { backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.15) 0%, rgba(47,61,25,0.7) 100%), url(${photo})` } : undefined}
     >
-      <div className={`mx-auto flex max-w-xl flex-col justify-end px-6 pb-6 ${photo ? "pt-32" : "pt-14"}`}>
-        <h1 className="text-6xl font-bold leading-[0.95] text-white">Louer un vélo</h1>
+      <div className={`mx-auto flex max-w-5xl flex-col justify-end px-6 pb-6 md:pb-10 ${photo ? "pt-32 md:pt-56" : "pt-14 md:pt-24"}`}>
+        <h1 className="text-6xl font-bold leading-[0.95] text-white md:text-8xl">Louer un vélo</h1>
         <p className="mt-2 text-white">{acc.name}{acc.city ? `, ${acc.city}` : ""}</p>
       </div>
     </section>
-    <main className="mx-auto flex max-w-xl flex-col gap-6 p-6">
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
       <p className="rounded-xl2 bg-accent p-3 text-sm text-forest">
         Réservez à l'avance pour garantir la disponibilité de votre vélo. La réservation le jour même reste possible selon les vélos libres.
       </p>
 
       {error && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">{errors[error] ?? errors.server}</p>}
 
-      <form action={submit} className="flex flex-col gap-6">
+      <form action={submit} className="flex flex-col gap-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8">
         <div aria-hidden="true" className="absolute left-[-9999px]"><label>Ne pas remplir<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+        <div className="flex flex-col gap-6 lg:col-span-3">
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 font-display text-4xl font-bold text-forest">1. Durée</legend>
           <label className="flex items-center gap-2"><input type="radio" name="mode" value="days" defaultChecked className="h-5 w-5" /> Une ou plusieurs journées (9h00 – 18h30)</label>
@@ -111,6 +112,8 @@ export default async function AccommodationPage({
           )}
         </fieldset>
 
+        </div>
+        <div className="flex flex-col gap-6 lg:sticky lg:top-6 lg:col-span-2">
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 font-display text-4xl font-bold text-forest">3. Vos coordonnées</legend>
           <div className="grid grid-cols-2 gap-3">
@@ -126,6 +129,7 @@ export default async function AccommodationPage({
         </fieldset>
 
         <Button type="submit">Voir mon récapitulatif</Button>
+        </div>
       </form>
     </main>
     </>

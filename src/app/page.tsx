@@ -23,22 +23,22 @@ export default function Home() {
         className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
         style={{ backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.2) 0%, rgba(47,61,25,0.78) 100%), url(${PHOTOS.veloColza})` }}
       >
-        <div className="mx-auto flex max-w-xl flex-col px-6 pb-8 pt-40">
-          <h1 className="text-6xl font-bold leading-[0.95] text-white">Des vélos pour explorer la Touraine</h1>
+        <div className="mx-auto flex max-w-5xl flex-col px-6 pb-8 pt-40 md:pb-14 md:pt-64">
+          <h1 className="max-w-3xl text-6xl font-bold leading-[0.95] text-white md:text-8xl">Des vélos pour explorer la Touraine</h1>
           <p className="mt-3 text-white">
             Chez Léon Bike &amp; Stay : la location de vélos en libre-service, directement depuis votre hébergement, sur l'itinéraire de la Loire à Vélo.
           </p>
         </div>
       </section>
 
-      <main className="mx-auto flex max-w-xl flex-col gap-8 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-10 p-6 md:gap-14">
         <PartnersSection />
 
         <section>
           <h2 className="mb-3 font-display text-4xl font-bold text-forest">Comment ça marche</h2>
-          <ol className="flex flex-col gap-3">
+          <ol className="grid gap-3 md:grid-cols-3">
             {steps.map((s) => (
-              <li key={s.n} className="flex gap-4 rounded-xl2 border border-line bg-white p-4">
+              <li key={s.n} className="flex gap-4 rounded-xl2 border border-line bg-white p-4 md:flex-col">
                 <span aria-hidden="true" className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-sage font-display text-2xl font-bold text-white">{s.n}</span>
                 <div>
                   <p className="font-bold text-forest">{s.title}</p>
@@ -50,17 +50,20 @@ export default function Home() {
           <p className="mt-3 text-sm">Une caution par empreinte bancaire est demandée avant le retrait : rien n'est débité.</p>
         </section>
 
+        <div className="grid gap-6 md:grid-cols-2">
         <section className="overflow-hidden rounded-xl2 border border-line bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PHOTOS.velosChezLeon} alt="Deux vélos Chez Léon appuyés à un muret au bord d'un canal" className="h-48 w-full object-cover" />
+          <img src={PHOTOS.velosChezLeon} alt="Deux vélos Chez Léon appuyés à un muret au bord d'un canal" className="h-48 w-full object-cover md:h-64" />
           <p className="p-4 text-sm">Des vélos prêts à partir, classiques ou à assistance électrique.</p>
         </section>
 
         <section className="overflow-hidden rounded-xl2 border border-line bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PHOTOS.savonnieres} alt="Panneau d'entrée de Savonnières, au bord du Cher" className="h-48 w-full object-cover" />
+          <img src={PHOTOS.savonnieres} alt="Panneau d'entrée de Savonnières, au bord du Cher" className="h-48 w-full object-cover md:h-64" />
           <p className="p-4 text-sm">Chez Léon est installé à Savonnières, en Touraine, au cœur du Val de Loire.</p>
         </section>
+
+        </div>
 
         <section className="rounded-xl2 bg-accent p-5 text-forest">
           <h2 className="font-display text-4xl font-bold">Vous accueillez des voyageurs ?</h2>

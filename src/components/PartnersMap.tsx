@@ -44,5 +44,5 @@ export function PartnersMap({ points }: { points: MapPoint[] }) {
     return () => { cancelled = true; map?.remove(); };
   }, [points]);
 
-  return <div ref={el} role="region" aria-label="Carte des hébergements partenaires" className="z-0 h-72 w-full overflow-hidden rounded-xl2 border border-line" />;
+  return <div ref={el} role="region" aria-label="Carte des hébergements partenaires" className="z-0 h-72 w-full lg:h-[28rem] overflow-hidden rounded-xl2 border border-line" />;
 }

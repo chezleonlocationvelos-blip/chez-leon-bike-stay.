@@ -7,11 +7,22 @@ export const esc = (s: string) =>
 type Base = { firstName: string; number: string; accommodation: string; startLabel: string; endLabel: string; link: string };
 export type ConfirmationData = Base & { lines: { label: string; qty: number; totalCents: number }[]; totalCents: number; depositCents: number };
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bike.chezleonlocation.com";
+
+/** Charte Chez Léon (site chezleonlocation.com) : fond clair, bandeau vert sauge, beige, vert foncé. */
 const wrap = (title: string, body: string) =>
-  `<!doctype html><html lang="fr"><body style="font-family:Arial,sans-serif;color:#26332D;background:#F7F4ED;padding:24px"><div style="max-width:560px;margin:auto;background:#fff;border-radius:16px;padding:24px"><h1 style="color:#234F3E;font-size:22px">${esc(title)}</h1>${body}<p style="font-size:12px;color:#666;margin-top:24px">Chez Léon – location de vélos en Touraine</p></div></body></html>`;
+  `<!doctype html><html lang="fr"><body style="margin:0;background:#F9F9F9;font-family:Roboto,Arial,sans-serif;color:#2F3D19">
+<div style="max-width:560px;margin:0 auto;padding:16px">
+<div style="background:#809758;border-radius:3px 3px 0 0;padding:16px 24px;text-align:left">
+<img src="${BASE_URL}/logo.png" alt="Chez Léon" width="64" height="64" style="display:block;border:0;width:64px;height:64px">
+</div>
+<div style="background:#ffffff;border:1px solid #D5DCC8;border-top:0;border-radius:0 0 3px 3px;padding:24px;line-height:1.5;font-size:15px">
+<h1 style="margin:0 0 16px;color:#3F4F25;font-size:24px;line-height:1.25;font-family:'Amatic SC','Trebuchet MS',Arial,sans-serif">${esc(title)}</h1>${body}
+<p style="font-size:12px;color:#5D6F3A;margin:24px 0 0;border-top:1px solid #D5DCC8;padding-top:12px">Chez Léon, location de vélos en Touraine<br>reservationschezleon@gmail.com · 06 44 80 71 89</p>
+</div></div></body></html>`;
 
 const button = (href: string, label: string) =>
-  `<p><a href="${esc(href)}" style="display:inline-block;background:#234F3E;color:#fff;padding:14px 24px;border-radius:14px;text-decoration:none;font-weight:bold">${esc(label)}</a></p>`;
+  `<p style="margin:20px 0"><a href="${esc(href)}" style="display:inline-block;background:#EAD6B5;color:#3F4F25;border:1px solid #C9B58F;padding:14px 24px;border-radius:3px;text-decoration:none;font-weight:bold;font-family:Lato,Arial,sans-serif">${esc(label)}</a></p>`;
 
 export function confirmationEmail(d: ConfirmationData) {
   const rows = d.lines.map((l) => `<tr><td>${l.qty} × ${esc(l.label)}</td><td style="text-align:right">${euros(l.totalCents)}</td></tr>`).join("");

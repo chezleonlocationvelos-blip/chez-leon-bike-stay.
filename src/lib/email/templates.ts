@@ -44,3 +44,21 @@ export function depositReminderEmail(d: Base & { depositCents: number }) {
   const text = `Votre location ${d.number} commence bientôt (${d.startLabel}, ${d.accommodation}).\nAutorisez la caution de ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité) pour recevoir votre code d'accès :\n${d.link}`;
   return { subject: `Demain : autorisez votre caution (${d.number})`, html, text };
 }
+
+export type OwnerNewReservationData = Base & {
+  customerName: string; customerEmail: string; customerPhone: string;
+  lines: { label: string; qty: number; totalCents: number }[]; totalCents: number; depositCents: number; adminLink: string;
+};
+
+/** Alerte envoyée au gérant à chaque nouvelle réservation payée. */
+export function ownerNewReservationEmail(d: OwnerNewReservationData) {
+  const rows = d.lines.map((l) => `<tr><td>${l.qty} × ${esc(l.label)}</td><td style="text-align:right">${euros(l.totalCents)}</td></tr>`).join("");
+  const html = wrap(`Nouvelle réservation ${d.number}`,
+    `<p><strong>${esc(d.customerName)}</strong><br>${esc(d.customerEmail)}<br>${esc(d.customerPhone)}</p>
+     <p><strong>${esc(d.accommodation)}</strong><br>Du ${esc(d.startLabel)}<br>Au ${esc(d.endLabel)}</p>
+     <table style="width:100%;border-collapse:collapse">${rows}<tr><td><strong>Total payé</strong></td><td style="text-align:right"><strong>${euros(d.totalCents)}</strong></td></tr></table>
+     <p>Caution à autoriser par le client : ${euros(d.depositCents)}</p>
+     ${button(d.adminLink, "Voir dans l'administration")}`);
+  const text = `Nouvelle réservation ${d.number}.\n${d.customerName} · ${d.customerEmail} · ${d.customerPhone}\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\nCaution : ${euros(d.depositCents)}\nAdministration : ${d.adminLink}`;
+  return { subject: `Nouvelle réservation ${d.number} : ${d.accommodation}`, html, text };
+}

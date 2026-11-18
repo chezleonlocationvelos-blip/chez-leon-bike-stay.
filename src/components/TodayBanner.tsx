@@ -98,7 +98,8 @@ export async function TodayBanner({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/snookie/snookie.png" alt="Snookie, la mascotte de Chez Léon, présente la météo" width={341} height={440} className="h-auto w-24 flex-none self-end sm:w-32" />
       <div className="relative flex-1 rounded-xl2 border border-line bg-white p-3 text-forest before:absolute before:-left-2 before:top-1/2 before:h-3 before:w-3 before:-translate-y-1/2 before:rotate-45 before:border-b before:border-l before:border-line before:bg-white">
-        <p className="text-xs font-bold uppercase tracking-wide text-sage">Snookie vous dit</p>
+        <p className="text-xs font-bold uppercase tracking-wide text-sage">La météo de Snookie</p>
+        <p className="mb-1 text-[11px] italic text-charcoal/70">la nouvelle Madame Irma</p>
         <p>
           <span aria-hidden="true" className="mr-1 text-xl">{icon}</span>
           <strong>{headline}</strong>{detail ? ` (${detail})` : ""}{stock ? ` : ${stock.charAt(0).toLowerCase()}${stock.slice(1)}` : ""}

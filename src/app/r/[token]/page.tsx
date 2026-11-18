@@ -5,6 +5,7 @@ import { hashToken } from "@/lib/reservations/token";
 import { euros, formatParis } from "@/lib/format";
 import { simulateDemoPayment, startDepositAuthorization, startRentalPayment } from "./actions";
 import { isStripeConfigured } from "@/lib/stripe/client";
+import { Itineraries } from "@/components/Itineraries";
 import { Button } from "@/components/ui/Button";
 
 export const metadata = { title: "Ma réservation – Chez Léon", robots: { index: false, follow: false } };
@@ -21,7 +22,7 @@ export default async function ReservationPage({
   const { data: r } = await db
     .from("reservations")
     .select(`id, number, status, start_at, end_at, billed_days, total_cents, deposit_amount_cents, deposit_status, is_demo,
-             accommodations(name, access_hours, access_instructions),
+             accommodations(name, slug, latitude, longitude, access_hours, access_instructions),
              reservation_items(quantity, unit_price_cents, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("access_token_hash", hashToken(token))
@@ -32,7 +33,7 @@ export default async function ReservationPage({
   const now = Date.now();
   const depositOk = r.deposit_status === "authorized";
   const codeVisible = !!grant && depositOk && ["confirmed", "ready"].includes(r.status) && now >= new Date(grant.valid_from).getTime() - ACCESS_OPENS_BEFORE_MS && now <= new Date(grant.valid_until).getTime();
-  const acc = r.accommodations as unknown as { name: string; access_hours: string | null; access_instructions: string | null };
+  const acc = r.accommodations as unknown as { name: string; slug: string; latitude: number | null; longitude: number | null; access_hours: string | null; access_instructions: string | null };
   const demo = process.env.NEXT_PUBLIC_DEMO_MODE === "true" && r.is_demo;
   const live = !demo && isStripeConfigured();
   const depositOpensAt = new Date(r.start_at).getTime() - 24 * 3600 * 1000;
@@ -117,6 +118,9 @@ export default async function ReservationPage({
             <p>{depositOk ? "Votre code s'affichera ici 1 h avant le début de la location." : "Votre code s'affichera ici une fois la caution autorisée, 1 h avant le début de la location."}</p>
           )}
         </section>
+      )}
+    {!["draft", "pending_payment", "cancelled"].includes(r.status) && (
+        <Itineraries slug={acc.slug} latitude={acc.latitude} longitude={acc.longitude} unlocked />
       )}
     </main>
     </>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { euros, todayParis } from "@/lib/format";
 import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { TodayBanner } from "@/components/TodayBanner";
+import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
@@ -133,6 +134,7 @@ export default async function AccommodationPage({
         <Button type="submit">Voir mon récapitulatif</Button>
         </div>
       </form>
+      <Itineraries slug={slug} latitude={acc.latitude} longitude={acc.longitude} />
     </main>
     </>
   );

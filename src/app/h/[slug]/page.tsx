@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/Button";
 import { euros, todayParis } from "@/lib/format";
 import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { TodayBanner } from "@/components/TodayBanner";
+import { DurationPicker } from "@/components/booking/DurationPicker";
+import { BikeCard } from "@/components/booking/BikeCard";
+import { PannierStepper } from "@/components/booking/PannierStepper";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
@@ -77,70 +80,50 @@ export default async function AccommodationPage({
 
       <form action={submit} className="flex flex-col gap-6 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8">
         <div aria-hidden="true" className="absolute left-[-9999px]"><label>Ne pas remplir<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-        <div className="flex flex-col gap-6 lg:col-span-3">
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 font-display text-4xl font-bold text-forest">1. Durée</legend>
-          <label className="flex items-center gap-2"><input type="radio" name="mode" value="days" defaultChecked className="h-5 w-5" /> Une ou plusieurs journées (9h00 – 18h30)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1 text-sm">Du<input type="date" name="start_date" min={today} defaultValue={today} className={input} /></label>
-            <label className="flex flex-col gap-1 text-sm">Au (inclus)<input type="date" name="end_date" min={today} defaultValue={today} className={input} /></label>
-          </div>
-          <label className="flex items-center gap-2"><input type="radio" name="mode" value="half_day" className="h-5 w-5" /> Une demi-journée (4 h)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1 text-sm">Date<input type="date" name="date" min={today} defaultValue={today} className={input} /></label>
-            <label className="flex flex-col gap-1 text-sm">Créneau
-              <select name="slot" className={input}>
-                {slots.map((sl: { id: string; start: string; end: string }) => (
-                  <option key={sl.id} value={sl.id}>{sl.start.replace(":", "h")} – {sl.end.replace(":", "h")}</option>
-                ))}
-              </select></label>
-          </div>
-        </fieldset>
+        <div className="flex flex-col gap-8 lg:col-span-3">
+        <section className="flex flex-col gap-3">
+          <h2 className="font-display text-4xl font-bold text-forest">Quand voulez-vous rouler ?</h2>
+          <DurationPicker today={today} slots={slots} />
+        </section>
 
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 font-display text-4xl font-bold text-forest">2. Vélos</legend>
+        <section className="flex flex-col gap-3">
+          <h2 className="font-display text-4xl font-bold text-forest">Avec quels vélos ?</h2>
           {(types ?? []).map((t) => (
-            <div key={t.id} className="flex items-center justify-between gap-4 rounded-xl2 border border-line bg-white p-4">
-              <div>
-                <div className="font-medium">{t.label}</div>
-                <div className="text-sm text-charcoal/80">
-                  {euros(t.half_day_price_cents)} la demi-journée · {euros(t.daily_price_cents)} le jour · {euros(t.two_days_price_cents)} les 2 jours · {euros(t.price_from_three_days_cents)}/jour dès 3 jours
-                </div>
-                <div className="text-sm text-charcoal/80">Caution : {euros(t.deposit_cents)} par vélo (empreinte bancaire, non débitée)</div>
-              </div>
-              <select name={`qty_${t.code}`} defaultValue="0" aria-label={`Nombre de ${t.label}`} className={input}>
-                {Array.from({ length: 11 }, (_, n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
+            <BikeCard
+              key={t.id}
+              code={t.code}
+              label={t.label}
+              electric={t.code === "electric"}
+              fromPrice={euros(t.price_from_three_days_cents)}
+              halfDay={euros(t.half_day_price_cents)}
+              day={euros(t.daily_price_cents)}
+              twoDays={euros(t.two_days_price_cents)}
+              threePlus={euros(t.price_from_three_days_cents)}
+              deposit={euros(t.deposit_cents)}
+            />
           ))}
-          <p className="text-sm">Casque et antivol inclus.</p>
-          {pannier && (
-            <label className="flex items-center justify-between gap-4 rounded-xl2 border border-line bg-white p-4">
-              <span>Sacoches ({euros(pannier.daily_price_cents)} par sacoche et par jour)</span>
-              <select name="panniers" defaultValue="0" className={input}>
-                {Array.from({ length: 5 }, (_, n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </label>
-          )}
-        </fieldset>
-
+          <p className="text-sm text-charcoal">Casque et antivol inclus.</p>
+          {pannier && <PannierStepper price={euros(pannier.daily_price_cents)} />}
+        </section>
         </div>
-        <div className="flex flex-col gap-6 lg:sticky lg:top-6 lg:col-span-2">
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 font-display text-4xl font-bold text-forest">3. Vos coordonnées</legend>
+
+        <div className="lg:sticky lg:top-6 lg:col-span-2">
+        <section className="flex flex-col gap-3 rounded-xl2 border border-line bg-white p-5 shadow-sm">
+          <h2 className="font-display text-4xl font-bold text-forest">Qui roule ?</h2>
+          <p className="text-sm text-charcoal">Vous recevrez la confirmation et le code d'accès par e-mail.</p>
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-sm">Prénom<input name="first_name" required autoComplete="given-name" className={input} /></label>
             <label className="flex flex-col gap-1 text-sm">Nom<input name="last_name" required autoComplete="family-name" className={input} /></label>
           </div>
-          <label className="flex flex-col gap-1 text-sm">Email<input type="email" name="email" required autoComplete="email" className={input} /></label>
+          <label className="flex flex-col gap-1 text-sm">E-mail<input type="email" name="email" required autoComplete="email" className={input} /></label>
           <label className="flex flex-col gap-1 text-sm">Téléphone<input type="tel" name="phone" required autoComplete="tel" className={input} /></label>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="accept_terms" required className="mt-1 h-5 w-5" />
             <span>J'accepte les <a href="/conditions" target="_blank" className="underline">conditions de location</a> et la <a href="/confidentialite" target="_blank" className="underline">politique de confidentialité</a>.</span>
           </label>
-        </fieldset>
-
-        <Button type="submit">Voir mon récapitulatif</Button>
+          <Button type="submit" className="w-full">Continuer</Button>
+          <p className="text-center text-xs text-charcoal/80">Vous vérifiez le récapitulatif avant tout paiement.</p>
+        </section>
         </div>
       </form>
       <Itineraries slug={slug} latitude={acc.latitude} longitude={acc.longitude} />

@@ -7,7 +7,7 @@ import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { TodayBanner } from "@/components/TodayBanner";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
+import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
 const errors: Record<string, string> = {
@@ -45,6 +45,7 @@ export default async function AccommodationPage({
   const today = todayParis();
   const submit = submitReservation.bind(null, slug);
   const photo = ACCOMMODATION_PHOTOS[slug] ?? DEFAULT_ACCOMMODATION_PHOTO;
+  const gallery = ACCOMMODATION_GALLERY[slug] ?? [];
 
   return (
     <>
@@ -59,6 +60,14 @@ export default async function AccommodationPage({
       </div>
     </section>
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
+      {gallery.length > 0 && (
+        <section aria-label="Photos de l'hébergement" className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {gallery.map(([src, alt]) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={src} src={src} alt={alt} loading="lazy" className="aspect-[4/3] w-full rounded-xl2 object-cover" />
+          ))}
+        </section>
+      )}
       <TodayBanner accommodationId={acc.id} latitude={acc.latitude} longitude={acc.longitude} />
       <p className="rounded-xl2 bg-accent p-3 text-sm text-forest">
         Réservez à l'avance pour garantir la disponibilité de votre vélo. La réservation le jour même reste possible selon les vélos libres.

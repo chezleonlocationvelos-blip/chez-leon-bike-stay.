@@ -94,9 +94,16 @@ export async function TodayBanner({
   }
 
   return (
-    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl2 border border-line bg-white p-3 text-forest">
-      <span aria-hidden="true" className="text-2xl">{icon}</span>
-      <span><strong>{headline}</strong>{detail ? ` (${detail})` : ""}{stock ? ` : ${stock.charAt(0).toLowerCase()}${stock.slice(1)}` : ""}</span>
-    </p>
+    <section aria-label="Météo du jour" className="flex items-center gap-3 sm:gap-4">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/snookie.png" alt="Snookie, la mascotte de Chez Léon" width={120} height={77} className="h-auto w-24 flex-none sm:w-32" />
+      <div className="relative flex-1 rounded-xl2 border border-line bg-white p-3 text-forest before:absolute before:-left-2 before:top-1/2 before:h-3 before:w-3 before:-translate-y-1/2 before:rotate-45 before:border-b before:border-l before:border-line before:bg-white">
+        <p className="text-xs font-bold uppercase tracking-wide text-sage">Snookie vous dit</p>
+        <p>
+          <span aria-hidden="true" className="mr-1 text-xl">{icon}</span>
+          <strong>{headline}</strong>{detail ? ` (${detail})` : ""}{stock ? ` : ${stock.charAt(0).toLowerCase()}${stock.slice(1)}` : ""}
+        </p>
+      </div>
+    </section>
   );
 }

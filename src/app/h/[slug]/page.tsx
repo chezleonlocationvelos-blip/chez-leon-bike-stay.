@@ -4,6 +4,7 @@ import { submitReservation } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { euros, todayParis } from "@/lib/format";
 import { DEFAULT_SLOTS } from "@/lib/availability/slots";
+import { TodayBanner } from "@/components/TodayBanner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
@@ -31,7 +32,7 @@ export default async function AccommodationPage({
   const { slug } = await params;
   const { error } = await searchParams;
   const db = createSupabaseServiceClient();
-  const { data: acc } = await db.from("accommodations").select("name, city, is_active").eq("slug", slug).maybeSingle();
+  const { data: acc } = await db.from("accommodations").select("id, name, city, is_active, latitude, longitude").eq("slug", slug).maybeSingle();
   if (!acc || !acc.is_active) notFound();
 
   const [{ data: types }, { data: pannier }, { data: s }] = await Promise.all([
@@ -57,6 +58,7 @@ export default async function AccommodationPage({
       </div>
     </section>
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
+      <TodayBanner accommodationId={acc.id} latitude={acc.latitude} longitude={acc.longitude} />
       <p className="rounded-xl2 bg-accent p-3 text-sm text-forest">
         Réservez à l'avance pour garantir la disponibilité de votre vélo. La réservation le jour même reste possible selon les vélos libres.
       </p>

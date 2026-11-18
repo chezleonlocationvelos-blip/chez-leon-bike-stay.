@@ -1,3 +1,4 @@
+import { Reviews } from "@/components/Reviews";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PHOTOS } from "@/lib/photos";
 import { PartnersSection } from "@/components/PartnersSection";
@@ -64,6 +65,8 @@ export default function Home() {
         </section>
 
         </div>
+
+        <Reviews />
 
         <section className="rounded-xl2 bg-accent p-5 text-forest">
           <h2 className="font-display text-4xl font-bold">Vous accueillez des voyageurs ?</h2>

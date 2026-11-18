@@ -8,6 +8,7 @@ import { TodayBanner } from "@/components/TodayBanner";
 import { DurationPicker } from "@/components/booking/DurationPicker";
 import { BikeCard } from "@/components/booking/BikeCard";
 import { PannierStepper } from "@/components/booking/PannierStepper";
+import { AccommodationReviews } from "@/components/AccommodationReviews";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
@@ -126,6 +127,7 @@ export default async function AccommodationPage({
         </section>
         </div>
       </form>
+      <AccommodationReviews accommodationId={acc.id} />
       <Itineraries slug={slug} latitude={acc.latitude} longitude={acc.longitude} />
     </main>
     </>

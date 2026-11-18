@@ -3,22 +3,23 @@ import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl } from "@/lib/stripe/client";
 import { decrypt, hasAppSecret } from "@/lib/crypto";
 import { formatParis } from "@/lib/format";
-import { confirmationEmail, depositReminderEmail, ownerNewReservationEmail } from "./templates";
+import { localTip } from "@/lib/localTips";
+import { confirmationEmail, depositReminderEmail, ownerNewReservationEmail, reviewRequestEmail } from "./templates";
 import { sendEmail } from "./send";
 
-type Kind = "confirmation" | "deposit_reminder";
+type Kind = "confirmation" | "deposit_reminder" | "review_request";
 
 async function load(id: string) {
   const db = createSupabaseServiceClient();
   const { data } = await db.from("reservations")
     .select(`id, number, start_at, end_at, total_cents, deposit_amount_cents, access_token_enc,
-             accommodations(name), customers(first_name, last_name, email, phone),
+             accommodations(name, slug), customers(first_name, last_name, email, phone),
              reservation_items(quantity, unit_price_cents, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("id", id).maybeSingle();
   return data as unknown as {
     id: string; number: string; start_at: string; end_at: string; total_cents: number; deposit_amount_cents: number; access_token_enc: string | null;
-    accommodations: { name: string }; customers: { first_name: string; last_name: string | null; email: string; phone: string | null };
+    accommodations: { name: string; slug: string }; customers: { first_name: string; last_name: string | null; email: string; phone: string | null };
     reservation_items: { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
     reservation_accessories: { quantity: number; unit_price_cents: number; accessories: { label: string } }[];
   } | null;
@@ -41,9 +42,11 @@ export async function notify(reservationId: string, kind: Kind): Promise<"sent" 
       startLabel: formatParis(r.start_at), endLabel: formatParis(r.end_at),
       link: `${appUrl()}/r/${decrypt(r.access_token_enc)}`,
     };
-    const msg = kind === "confirmation"
+    const msg = kind === "review_request"
+      ? reviewRequestEmail({ firstName: base.firstName, accommodation: base.accommodation, number: base.number, link: base.link.replace("/r/", "/avis/") })
+      : kind === "confirmation"
       ? confirmationEmail({
-          ...base, totalCents: r.total_cents, depositCents: r.deposit_amount_cents,
+          ...base, tip: localTip(r.accommodations.slug), totalCents: r.total_cents, depositCents: r.deposit_amount_cents,
           lines: [
             ...r.reservation_items.map((i) => ({ label: i.bike_types.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
             ...r.reservation_accessories.map((i) => ({ label: i.accessories.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),

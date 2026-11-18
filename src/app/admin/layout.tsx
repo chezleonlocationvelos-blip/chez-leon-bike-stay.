@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/reservations", label: "Réservations" },
     { href: "/admin/pricing", label: "Tarifs et cautions" },
     { href: "/admin/partners", label: "Partenaires" },
+    { href: "/admin/avis", label: "Avis" },
   ];
   return (
     <div className="mx-auto max-w-5xl p-6">

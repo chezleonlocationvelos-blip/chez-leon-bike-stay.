@@ -5,7 +5,7 @@ export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 type Base = { firstName: string; number: string; accommodation: string; startLabel: string; endLabel: string; link: string };
-export type ConfirmationData = Base & { lines: { label: string; qty: number; totalCents: number }[]; totalCents: number; depositCents: number };
+export type ConfirmationData = Base & { tip?: string; lines: { label: string; qty: number; totalCents: number }[]; totalCents: number; depositCents: number };
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bike.chezleonlocation.com";
 
@@ -27,12 +27,13 @@ const button = (href: string, label: string) =>
 export function confirmationEmail(d: ConfirmationData) {
   const rows = d.lines.map((l) => `<tr><td>${l.qty} × ${esc(l.label)}</td><td style="text-align:right">${euros(l.totalCents)}</td></tr>`).join("");
   const html = wrap(`Réservation ${d.number} confirmée`,
-    `<p>Bonjour ${esc(d.firstName)}, votre paiement est bien reçu.</p>
+    `<p>Bonjour ${esc(d.firstName)}, bienvenue chez Léon ! Votre paiement est bien reçu et votre séjour à <strong>${esc(d.accommodation)}</strong> se prépare.</p>
+     ${d.tip ? `<p style="background:#F4EBDB;border-radius:3px;padding:12px 16px;margin:16px 0"><strong>Le conseil de Léon</strong><br>${esc(d.tip)}</p>` : ""}
      <p><strong>${esc(d.accommodation)}</strong><br>Du ${esc(d.startLabel)}<br>Au ${esc(d.endLabel)}</p>
      <table style="width:100%;border-collapse:collapse">${rows}<tr><td><strong>Total payé</strong></td><td style="text-align:right"><strong>${euros(d.totalCents)}</strong></td></tr></table>
      <p><strong>Caution : ${euros(d.depositCents)}</strong> (empreinte bancaire, rien n'est débité). Vous l'autoriserez depuis votre page de réservation dans les 24 h précédant le retrait : c'est elle qui débloque votre code d'accès.</p>
      ${button(d.link, "Ouvrir ma réservation")}`);
-  const text = `Réservation ${d.number} confirmée.\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\nCaution : ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité), à autoriser dans les 24 h avant le retrait.\nMa réservation : ${d.link}`;
+  const text = `Réservation ${d.number} confirmée.\nBienvenue chez Léon, ${d.firstName} !${d.tip ? `\nLe conseil de Léon : ${d.tip}` : ""}\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\nCaution : ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité), à autoriser dans les 24 h avant le retrait.\nMa réservation : ${d.link}`;
   return { subject: `Votre réservation ${d.number} est confirmée`, html, text };
 }
 
@@ -61,4 +62,14 @@ export function ownerNewReservationEmail(d: OwnerNewReservationData) {
      ${button(d.adminLink, "Voir dans l'administration")}`);
   const text = `Nouvelle réservation ${d.number}.\n${d.customerName} · ${d.customerEmail} · ${d.customerPhone}\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\nCaution : ${euros(d.depositCents)}\nAdministration : ${d.adminLink}`;
   return { subject: `Nouvelle réservation ${d.number} : ${d.accommodation}`, html, text };
+}
+
+export function reviewRequestEmail(d: { firstName: string; accommodation: string; number: string; link: string }) {
+  const html = wrap("Comment s'est passée votre sortie ?",
+    `<p>Bonjour ${esc(d.firstName)}, merci d'avoir roulé avec Chez Léon depuis ${esc(d.accommodation)} !</p>
+     <p>Votre avis nous aide à nous améliorer et guide les prochains voyageurs. Une note et, si vous le souhaitez, quelques mots : cela prend une minute.</p>
+     ${button(d.link, "Donner mon avis")}
+     <p style="font-size:13px;color:#5D6F3A">Tous les avis sont publiés, bons ou moins bons, sauf s'ils sont hors sujet ou injurieux.</p>`);
+  const text = `Bonjour ${d.firstName}, merci d'avoir roulé avec Chez Léon depuis ${d.accommodation} !\nDonnez votre avis (une minute) : ${d.link}`;
+  return { subject: `Votre avis sur votre sortie à vélo (${d.number})`, html, text };
 }

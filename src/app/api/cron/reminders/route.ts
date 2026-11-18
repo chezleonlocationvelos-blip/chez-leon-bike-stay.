@@ -21,5 +21,16 @@ export async function GET(request: Request) {
   for (const r of data ?? []) {
     try { out[await notify(r.id, "deposit_reminder")]++; } catch { out.failed++; }
   }
-  return NextResponse.json(out);
+
+  // Demande d'avis : 24 h après la restitution (la tâche est quotidienne : envoi entre 24 h et 48 h après), jamais au-delà de 14 jours.
+  const reviews = { sent: 0, skipped: 0, duplicate: 0, failed: 0 };
+  const { data: returned } = await db.from("reservation_returns")
+    .select("reservation_id, reservations!inner(status, is_demo)")
+    .lt("created_at", new Date(now.getTime() - 24 * 3600_000).toISOString())
+    .gt("created_at", new Date(now.getTime() - 14 * 24 * 3600_000).toISOString())
+    .eq("reservations.status", "completed").eq("reservations.is_demo", false);
+  for (const r of returned ?? []) {
+    try { reviews[await notify(r.reservation_id, "review_request")]++; } catch { reviews.failed++; }
+  }
+  return NextResponse.json({ ...out, reviews });
 }

@@ -20,18 +20,17 @@ async function fetchWeather(lat: number, lng: number): Promise<Weather | null> {
   }
 }
 
-type Variant = "soleil" | "nuageux" | "pluie" | "orage" | "neige";
-function describe(w: Weather): { icon: string; label: string; nice: boolean; variant: Variant } {
+function describe(w: Weather): { icon: string; label: string; nice: boolean } {
   const c = w.code;
-  if (c === 0) return { icon: "☀️", label: "grand soleil", nice: true, variant: "soleil" };
-  if (c <= 2) return { icon: "🌤️", label: "plutôt ensoleillé", nice: true, variant: "soleil" };
-  if (c === 3) return { icon: "☁️", label: "ciel couvert", nice: w.rain < 40, variant: "nuageux" };
-  if (c === 45 || c === 48) return { icon: "🌫️", label: "brouillard", nice: false, variant: "nuageux" };
-  if (c >= 51 && c <= 67) return { icon: "🌧️", label: "pluie", nice: false, variant: "pluie" };
-  if (c >= 71 && c <= 77) return { icon: "❄️", label: "neige", nice: false, variant: "neige" };
-  if (c >= 80 && c <= 82) return { icon: "🌦️", label: "averses", nice: false, variant: "pluie" };
-  if (c >= 95) return { icon: "⛈️", label: "orages", nice: false, variant: "orage" };
-  return { icon: "⛅", label: "temps variable", nice: w.rain < 40, variant: "nuageux" };
+  if (c === 0) return { icon: "☀️", label: "grand soleil", nice: true };
+  if (c <= 2) return { icon: "🌤️", label: "plutôt ensoleillé", nice: true };
+  if (c === 3) return { icon: "☁️", label: "ciel couvert", nice: w.rain < 40 };
+  if (c === 45 || c === 48) return { icon: "🌫️", label: "brouillard", nice: false };
+  if (c >= 51 && c <= 67) return { icon: "🌧️", label: "pluie", nice: false };
+  if (c >= 71 && c <= 77) return { icon: "❄️", label: "neige", nice: false };
+  if (c >= 80 && c <= 82) return { icon: "🌦️", label: "averses", nice: false };
+  if (c >= 95) return { icon: "⛈️", label: "orages", nice: false };
+  return { icon: "⛅", label: "temps variable", nice: w.rain < 40 };
 }
 
 /** Nombre de vélos libres d'ici la fin de la journée, par type. */
@@ -85,12 +84,10 @@ export async function TodayBanner({
 
   let headline = "Aujourd'hui";
   let icon = "🚲";
-  let variant: Variant = "nuageux";
   let detail = "";
   if (weather) {
     const d = describe(weather);
     icon = d.icon;
-    variant = d.variant;
     const moment = weather.hour >= 18 ? "demain" : weather.hour >= 12 ? "cet après-midi" : "aujourd'hui";
     headline = d.nice ? `Beau temps ${moment}` : `${d.label.charAt(0).toUpperCase()}${d.label.slice(1)} ${moment}`;
     detail = `${weather.tmax}°C max${weather.rain >= 30 ? ` · ${weather.rain} % de risque de pluie` : ""}`;
@@ -99,7 +96,7 @@ export async function TodayBanner({
   return (
     <section aria-label="Météo du jour" className="flex items-center gap-3 sm:gap-4">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/snookie/${variant}.png`} alt="Snookie, la mascotte de Chez Léon, présente la météo" width={540} height={360} className="h-auto w-36 flex-none sm:w-52" />
+      <img src="/snookie/snookie.png" alt="Snookie, la mascotte de Chez Léon, présente la météo" width={341} height={440} className="h-auto w-24 flex-none self-end sm:w-32" />
       <div className="relative flex-1 rounded-xl2 border border-line bg-white p-3 text-forest before:absolute before:-left-2 before:top-1/2 before:h-3 before:w-3 before:-translate-y-1/2 before:rotate-45 before:border-b before:border-l before:border-line before:bg-white">
         <p className="text-xs font-bold uppercase tracking-wide text-sage">Snookie vous dit</p>
         <p>

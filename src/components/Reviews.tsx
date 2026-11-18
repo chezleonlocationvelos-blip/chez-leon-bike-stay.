@@ -21,7 +21,7 @@ const REVIEWS = [
 /** Avis Google réels de Chez Léon (Savonnières). Note : 5,0 sur 60 avis. */
 export function Reviews() {
   return (
-    <section>
+    <section id="avis" className="scroll-mt-24">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <h2 className="font-display text-4xl font-bold text-forest">Ils ont roulé avec nous</h2>
         <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-forest underline">

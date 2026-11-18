@@ -26,7 +26,7 @@ export async function PartnersSection() {
     .map((a) => ({ slug: a.slug, name: a.name, city: a.city, lat: Number(a.latitude), lng: Number(a.longitude) }));
 
   return (
-    <section>
+    <section id="hebergements" className="scroll-mt-24">
       <h2 className="mb-3 font-display text-4xl font-bold text-forest">Où louer un vélo</h2>
       <p className="mb-3 text-sm">Choisissez un hébergement partenaire pour réserver votre vélo en quelques minutes.</p>
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">

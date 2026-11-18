@@ -55,7 +55,7 @@ export default async function AccommodationPage({
     <>
     <SiteHeader />
     <section
-      className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
+      className="bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
       style={photo ? { backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.15) 0%, rgba(47,61,25,0.7) 100%), url(${photo})` } : undefined}
     >
       <div className={`mx-auto flex max-w-5xl flex-col justify-end px-6 pb-6 md:pb-10 ${photo ? "pt-32 md:pt-56" : "pt-14 md:pt-24"}`}>

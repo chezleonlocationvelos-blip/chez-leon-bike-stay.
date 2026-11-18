@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Chez Léon Bike & Stay" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${roboto.variable} ${amatic.variable} ${lato.variable}`}>
+    <html lang="fr" className={`scroll-smooth ${roboto.variable} ${amatic.variable} ${lato.variable}`}>
       <body className="font-sans">
         <DemoBanner />
         {children}

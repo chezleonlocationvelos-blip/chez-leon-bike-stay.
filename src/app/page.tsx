@@ -21,7 +21,7 @@ export default function Home() {
     <>
       <SiteHeader />
       <section
-        className="mt-3 bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
+        className="bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
         style={{ backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.2) 0%, rgba(47,61,25,0.78) 100%), url(${PHOTOS.veloColza})` }}
       >
         <div className="mx-auto flex max-w-5xl flex-col px-6 pb-8 pt-40 md:pb-14 md:pt-64">
@@ -35,7 +35,7 @@ export default function Home() {
       <main className="mx-auto flex max-w-5xl flex-col gap-10 p-6 md:gap-14">
         <PartnersSection />
 
-        <section>
+        <section id="comment" className="scroll-mt-24">
           <h2 className="mb-3 font-display text-4xl font-bold text-forest">Comment ça marche</h2>
           <ol className="grid gap-3 md:grid-cols-3">
             {steps.map((s) => (
@@ -68,7 +68,7 @@ export default function Home() {
 
         <Reviews />
 
-        <section className="rounded-xl2 bg-accent p-5 text-forest">
+        <section id="hebergeurs" className="scroll-mt-24 rounded-xl2 bg-accent p-5 text-forest">
           <h2 className="font-display text-4xl font-bold">Vous accueillez des voyageurs ?</h2>
           <p className="mt-2 text-sm">
             Campings, gîtes, hôtels, chambres d'hôtes : proposez des vélos à vos clients sans rien gérer, ni réservation, ni encaissement.

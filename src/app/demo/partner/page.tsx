@@ -1,6 +1,7 @@
 import QRCode from "qrcode";
 import { DEMO_BIKES, DEMO_RESERVATIONS } from "@/lib/demo/data";
 import { euros } from "@/lib/format";
+import CommissionGauge from "@/components/partner/CommissionGauge";
 
 const ACC = "Camping des Rives (exemple)";
 
@@ -23,6 +24,16 @@ export default async function DemoPartner() {
         <p className="text-3xl font-bold">{euros(commission)}</p>
         <p className="text-sm text-charcoal/70">Estimation indicative. Le versement réel passe par Stripe Connect.</p>
       </div>
+
+      <CommissionGauge
+        commissionBps={2000}
+        types={[
+          { code: "electric", label: "Vélo électrique", dailyCents: 3600, bikes: bikes.filter((b) => b.type === "Vélo électrique").length },
+          { code: "classic", label: "Vélo classique", dailyCents: 1900, bikes: bikes.filter((b) => b.type === "Vélo classique").length },
+        ]}
+        realRentals={reservations.length}
+        realCommissionCents={commission}
+      />
 
       <div className="rounded-xl2 border border-line bg-white p-4">
         <h2 className="mb-2 font-display text-3xl font-bold text-forest">Votre QR code</h2>

@@ -4,20 +4,39 @@ import { euros, formatParis } from "@/lib/format";
 import { bikeStatusLabels, reservationStatusLabels } from "@/lib/labels";
 import { commissionCents } from "@/lib/pricing";
 import { declareReturn } from "./actions";
+import CommissionGauge, { type GaugeType } from "@/components/partner/CommissionGauge";
 
 /** Toutes les lectures passent par le client utilisateur : la RLS limite aux hébergements du partenaire. */
 export default async function PartnerHome() {
   const supabase = await createSupabaseServerClient();
   const [{ data: accs }, { data: bikes }, { data: reservations }] = await Promise.all([
     supabase.from("accommodations").select("id, name, slug, commission_bps"),
-    supabase.from("bikes").select("id, internal_code, status, bike_types(label)").order("internal_code"),
+    supabase.from("bikes").select("id, internal_code, status, accommodation_id, bike_types(code, label, daily_price_cents)").order("internal_code"),
     supabase.from("reservations").select("id, number, status, start_at, end_at, total_cents, accommodation_id")
       .in("status", ["confirmed", "access_preparing", "ready", "in_progress", "return_declared", "completed"])
       .order("start_at", { ascending: false }).limit(100),
   ]);
   const bps = new Map((accs ?? []).map((a) => [a.id, a.commission_bps]));
   const commission = (reservations ?? []).reduce((sum, r) => sum + commissionCents(r.total_cents, bps.get(r.accommodation_id) ?? 0), 0);
-  const bikeRows = (bikes ?? []) as unknown as { id: string; internal_code: string; status: string; bike_types: { label: string } | null }[];
+  type BikeRow = { id: string; internal_code: string; status: string; accommodation_id: string; bike_types: { code: string; label: string; daily_price_cents: number } | null };
+  const bikeRows = (bikes ?? []) as unknown as BikeRow[];
+
+  /** Données de la jauge : vélos en service par type, et chiffres réels, pour chaque hébergement. */
+  const gauges = (accs ?? []).map((a) => {
+    const types = new Map<string, GaugeType>();
+    for (const b of bikeRows) {
+      if (b.accommodation_id !== a.id || !b.bike_types || ["retired", "stolen"].includes(b.status)) continue;
+      const t = types.get(b.bike_types.code) ?? { code: b.bike_types.code, label: b.bike_types.label, dailyCents: b.bike_types.daily_price_cents, bikes: 0 };
+      t.bikes += 1;
+      types.set(b.bike_types.code, t);
+    }
+    const mine = (reservations ?? []).filter((r) => r.accommodation_id === a.id);
+    return {
+      id: a.id, name: a.name, bps: a.commission_bps, types: [...types.values()],
+      realRentals: mine.length,
+      realCommission: mine.reduce((sum, r) => sum + commissionCents(r.total_cents, a.commission_bps), 0),
+    };
+  });
 
   return (
     <section className="flex flex-col gap-6">
@@ -29,6 +48,13 @@ export default async function PartnerHome() {
         <p className="text-3xl font-bold">{euros(commission)}</p>
         <p className="text-sm text-charcoal/70">Estimation indicative. Le versement réel passera par Stripe Connect.</p>
       </div>
+
+      {gauges.map((g) => (
+        <div key={g.id} className="flex flex-col gap-2">
+          {gauges.length > 1 && <p className="font-medium">{g.name}</p>}
+          <CommissionGauge commissionBps={g.bps} types={g.types} realRentals={g.realRentals} realCommissionCents={g.realCommission} />
+        </div>
+      ))}
 
       <div className="rounded-xl2 border border-line bg-white p-4">
         <h2 className="mb-2 font-display text-3xl font-bold text-forest">Votre QR code</h2>

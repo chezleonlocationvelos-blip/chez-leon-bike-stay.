@@ -127,8 +127,9 @@ export default async function ReservationPage({
       {["confirmed", "ready", "in_progress"].includes(r.status) && now >= new Date(r.start_at).getTime() && (
         <section className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
           <h2 className="text-lg font-semibold">Rendre le vélo</h2>
-          {errorParam === "photos" && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">Il manque des photos : prenez une photo de chaque vélo avant de terminer.</p>}
-          <ReturnCamera token={token} reservationNumber={r.number} needed={Math.max(1, bikeCount ?? 1)} initialCount={photoCount ?? 0} declare={declareReturn.bind(null, token)} />
+          {errorParam === "photos" && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">Il manque des photos : une par vélo et une de la boîte à clés.</p>}
+          {errorParam === "attest" && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">Cochez la case de confirmation pour terminer.</p>}
+          <ReturnCamera token={token} reservationNumber={r.number} bikes={Math.max(1, bikeCount ?? 1)} initialCount={photoCount ?? 0} declare={declareReturn.bind(null, token)} />
         </section>
       )}
       {r.status === "return_declared" && (

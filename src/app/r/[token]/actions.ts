@@ -5,7 +5,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/reservations/token";
 import { MockLockProvider } from "@/lib/locks/mock";
 import { isStripeConfigured } from "@/lib/stripe/client";
-import { notify } from "@/lib/email/notify";
+import { notify, notifyOwnerReturn } from "@/lib/email/notify";
 import { createDepositCheckout, createRentalCheckout } from "@/lib/stripe/checkout";
 
 /** DÉMONSTRATION UNIQUEMENT : simule paiement, caution et code. Désactivé hors mode démo. */
@@ -49,18 +49,21 @@ export async function startDepositAuthorization(token: string) {
   redirect(res.ok ? res.url : `/r/${token}?error=${res.error.toLowerCase()}`);
 }
 
-/** Déclare la restitution une fois toutes les photos prises en direct (une par vélo). */
-export async function declareReturn(token: string) {
+/** Déclare la restitution : une photo par vélo + une photo de la boîte à clés + attestation cochée. Alerte le gérant. */
+export async function declareReturn(token: string, formData: FormData) {
   const db = createSupabaseServiceClient();
   const { data: r } = await db.from("reservations").select("id, status").eq("access_token_hash", hashToken(token)).maybeSingle();
   if (!r || !["confirmed", "ready", "in_progress"].includes(r.status)) redirect(`/r/${token}`);
-  const [{ count: photos }, { count: bikes }] = await Promise.all([
-    db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id),
+  if (formData.get("attest") !== "on") redirect(`/r/${token}?error=attest`);
+  const [{ count: bikePhotos }, { count: keyPhotos }, { count: bikes }] = await Promise.all([
+    db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("kind", "bike"),
+    db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("kind", "keybox"),
     db.from("reservation_bike_assignments").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("active", true),
   ]);
-  if ((photos ?? 0) < Math.max(1, bikes ?? 1)) redirect(`/r/${token}?error=photos`);
-  await db.from("reservations").update({ status: "return_declared" }).eq("id", r.id);
-  await db.from("audit_logs").insert({ action: "reservation.return_declared_by_customer", entity: "reservation", entity_id: r.id, details: { photos } });
+  if ((bikePhotos ?? 0) < Math.max(1, bikes ?? 1) || (keyPhotos ?? 0) < 1) redirect(`/r/${token}?error=photos`);
+  await db.from("reservations").update({ status: "return_declared", return_attested_at: new Date().toISOString() }).eq("id", r.id);
+  await db.from("audit_logs").insert({ action: "reservation.return_declared_by_customer", entity: "reservation", entity_id: r.id, details: { bike_photos: bikePhotos, keybox_photos: keyPhotos, attested: true } });
+  try { await notifyOwnerReturn(r.id); } catch (e) { console.error("Alerte retour non envoyée", e); }
   revalidatePath(`/r/${token}`);
   redirect(`/r/${token}?retour=1`);
 }

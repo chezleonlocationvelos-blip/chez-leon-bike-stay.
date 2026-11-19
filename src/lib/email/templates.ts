@@ -73,3 +73,13 @@ export function reviewRequestEmail(d: { firstName: string; accommodation: string
   const text = `Bonjour ${d.firstName}, merci d'avoir roulé avec Chez Léon depuis ${d.accommodation} !\nDonnez votre avis (une minute) : ${d.link}`;
   return { subject: `Votre avis sur votre sortie à vélo (${d.number})`, html, text };
 }
+
+export function ownerReturnEmail(d: { number: string; accommodation: string; customerName: string; customerPhone: string; bikePhotos: number; attestedLabel: string; adminLink: string }) {
+  const html = wrap(`Retour déclaré : ${d.number}`,
+    `<p><strong>${esc(d.customerName)}</strong> (${esc(d.customerPhone)}) a déclaré avoir rendu ses vélos à <strong>${esc(d.accommodation)}</strong>.</p>
+     <p>${d.bikePhotos} photo(s) de vélo + 1 photo de la boîte à clés, prises en direct. Attestation cochée le ${esc(d.attestedLabel)} : « J'ai cadenassé le vélo et remis la clé dans la boîte ».</p>
+     <p>À faire : contrôler les photos, vérifier les vélos sur place, puis clôturer la location (libération de la caution).</p>
+     ${button(d.adminLink, "Voir les photos et clôturer")}`);
+  const text = `Retour déclaré : ${d.number}\n${d.customerName} (${d.customerPhone}) · ${d.accommodation}\n${d.bikePhotos} photo(s) de vélo + boîte à clés. Attestation cochée le ${d.attestedLabel}.\nContrôler et clôturer : ${d.adminLink}`;
+  return { subject: `Retour déclaré ${d.number} : ${d.accommodation}`, html, text };
+}

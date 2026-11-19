@@ -1,13 +1,26 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-type Props = { token: string; reservationNumber: string; needed: number; initialCount: number; declare: () => Promise<void> };
+type Step = { kind: "bike" | "keybox"; label: string; instruction: string };
+type Props = { token: string; reservationNumber: string; bikes: number; initialCount: number; declare: (formData: FormData) => Promise<void> };
+
+function buildSteps(bikes: number): Step[] {
+  const steps: Step[] = Array.from({ length: bikes }, (_, i) => ({
+    kind: "bike" as const,
+    label: bikes > 1 ? `Vélo ${i + 1} sur ${bikes}` : "Le vélo",
+    instruction: "Cadenassez le vélo à son emplacement, puis photographiez-le avec l'antivol bien visible et verrouillé.",
+  }));
+  steps.push({ kind: "keybox", label: "La boîte à clés", instruction: "Remettez la clé dans la boîte à clés et fermez-la, puis photographiez la boîte fermée (ou son cadenas verrouillé)." });
+  return steps;
+}
 
 /**
  * Photo de restitution prise EN DIRECT : flux caméra (getUserMedia) → image dessinée dans un canevas → JPEG envoyé au serveur.
  * Aucune sélection de fichier ni de galerie n'est proposée. L'heure serveur fait foi ; la position est enregistrée si elle est autorisée.
  */
-export function ReturnCamera({ token, reservationNumber, needed, initialCount, declare }: Props) {
+export function ReturnCamera({ token, reservationNumber, bikes, initialCount, declare }: Props) {
+  const steps = buildSteps(bikes);
+  const needed = steps.length;
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
   const [active, setActive] = useState(false);
@@ -57,7 +70,8 @@ export function ReturnCamera({ token, reservationNumber, needed, initialCount, d
       if (!blob) throw new Error("blob");
       const pos = await position();
       const fd = new FormData();
-      fd.set("token", token); fd.set("photo", blob, "retour.jpg");
+      const step = steps[Math.min(count, steps.length - 1)];
+      fd.set("token", token); fd.set("photo", blob, "retour.jpg"); fd.set("kind", step.kind); fd.set("label", step.label);
       if (pos) { fd.set("lat", String(pos.coords.latitude)); fd.set("lng", String(pos.coords.longitude)); fd.set("acc", String(pos.coords.accuracy)); }
       const res = await fetch("/api/return-photo", { method: "POST", body: fd });
       if (!res.ok) throw new Error(String(res.status));
@@ -69,15 +83,14 @@ export function ReturnCamera({ token, reservationNumber, needed, initialCount, d
     } finally { setBusy(false); }
   }
 
-  const btn = "inline-flex min-h-12 items-center justify-center rounded-xl2 border border-forest/30 bg-accent px-5 font-button font-bold text-forest disabled:opacity-50";
   const done = count >= needed;
+  const btn = "inline-flex min-h-12 items-center justify-center rounded-xl2 border border-forest/30 bg-accent px-5 font-button font-bold text-forest disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-charcoal">
-        Photographiez {needed > 1 ? `chacun des ${needed} vélos` : "le vélo"} cadenassé à son emplacement. La photo se prend directement ici, la galerie n'est pas utilisable.
-      </p>
-      <p className="font-bold text-forest" aria-live="polite">{count} photo{count > 1 ? "s" : ""} sur {needed}</p>
+      <p className="text-sm text-charcoal">Les photos se prennent directement ici : la galerie n'est pas utilisable.</p>
+      <p className="font-bold text-forest" aria-live="polite">Photo {Math.min(count + 1, needed)} sur {needed}{done ? " : terminé" : ` : ${steps[count].label}`}</p>
+      {!done && <p className="rounded-xl2 bg-accent/40 p-3 text-forest">{steps[count].instruction}</p>}
 
       {active && (
         <div className="relative overflow-hidden rounded-xl2 bg-black">
@@ -95,7 +108,11 @@ export function ReturnCamera({ token, reservationNumber, needed, initialCount, d
       {active && <button type="button" onClick={stop} className="text-sm underline">Fermer la caméra</button>}
 
       {done && (
-        <form action={declare}>
+        <form action={declare} className="flex flex-col gap-3">
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="attest" required className="mt-1 h-5 w-5" />
+            <span>Je certifie avoir cadenassé {bikes > 1 ? "les vélos" : "le vélo"} et remis la clé dans la boîte à clés.</span>
+          </label>
           <button type="submit" className={btn}>Terminer la restitution</button>
         </form>
       )}

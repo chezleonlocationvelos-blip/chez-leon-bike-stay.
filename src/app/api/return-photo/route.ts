@@ -4,7 +4,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/reservations/token";
 
 export const runtime = "nodejs";
-const MAX_PHOTOS = 8;
+const MAX_PHOTOS = 12;
 const MAX_BYTES = 2 * 1024 * 1024;
 const OPEN = ["confirmed", "ready", "in_progress"];
 
@@ -27,13 +27,16 @@ export async function POST(req: Request) {
   const { count } = await db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id);
   if ((count ?? 0) >= MAX_PHOTOS) return NextResponse.json({ error: "limit" }, { status: 429 });
 
+  const kind = String(form?.get("kind") ?? "bike");
+  if (kind !== "bike" && kind !== "keybox") return NextResponse.json({ error: "invalid" }, { status: 400 });
+  const label = String(form?.get("label") ?? "").slice(0, 80) || null;
   const num = (k: string) => { const v = Number(form?.get(k)); return Number.isFinite(v) && form?.get(k) !== null && form?.get(k) !== "" ? v : null; };
   const path = `${r.id}/${randomUUID()}.jpg`;
   const up = await db.storage.from("return-photos").upload(path, bytes, { contentType: "image/jpeg", upsert: false });
   if (up.error) return NextResponse.json({ error: "upload" }, { status: 500 });
 
   const { error } = await db.from("reservation_return_photos").insert({
-    reservation_id: r.id, storage_path: path,
+    reservation_id: r.id, storage_path: path, kind, label,
     latitude: num("lat"), longitude: num("lng"), accuracy_m: num("acc"),
     user_agent: (req.headers.get("user-agent") ?? "").slice(0, 300),
   });

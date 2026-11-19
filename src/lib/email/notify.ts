@@ -4,7 +4,7 @@ import { appUrl } from "@/lib/stripe/client";
 import { decrypt, hasAppSecret } from "@/lib/crypto";
 import { formatParis } from "@/lib/format";
 import { localTip } from "@/lib/localTips";
-import { confirmationEmail, depositReminderEmail, ownerNewReservationEmail, reviewRequestEmail } from "./templates";
+import { confirmationEmail, depositReminderEmail, ownerNewReservationEmail, ownerReturnEmail, reviewRequestEmail } from "./templates";
 import { sendEmail } from "./send";
 
 type Kind = "confirmation" | "deposit_reminder" | "review_request";
@@ -84,5 +84,33 @@ async function notifyOwner(
     await sendEmail(to, msg);
   } catch (e) {
     console.error("Alerte gérant non envoyée", e);
+  }
+}
+
+/** Alerte au gérant quand un client déclare son retour (une seule fois par réservation). */
+export async function notifyOwnerReturn(reservationId: string): Promise<"sent" | "duplicate" | "skipped"> {
+  const db = createSupabaseServiceClient();
+  const { data: claimed } = await db.from("notifications")
+    .upsert({ reservation_id: reservationId, kind: "return_declared" }, { onConflict: "reservation_id,kind", ignoreDuplicates: true }).select("id");
+  if (!claimed || claimed.length === 0) return "duplicate";
+  try {
+    const { data: r } = await db.from("reservations")
+      .select("id, number, return_attested_at, accommodations(name), customers(first_name, last_name, phone)").eq("id", reservationId).maybeSingle();
+    if (!r) throw new Error("reservation introuvable");
+    const { count } = await db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", reservationId).eq("kind", "bike");
+    const acc = r.accommodations as unknown as { name: string };
+    const c = r.customers as unknown as { first_name: string; last_name: string | null; phone: string | null };
+    const msg = ownerReturnEmail({
+      number: r.number, accommodation: acc.name,
+      customerName: `${c.first_name} ${c.last_name ?? ""}`.trim(), customerPhone: c.phone ?? "téléphone non renseigné",
+      bikePhotos: count ?? 0, attestedLabel: formatParis(r.return_attested_at ?? new Date()),
+      adminLink: `${appUrl()}/admin/reservations/${r.id}`,
+    });
+    const res = await sendEmail(process.env.OWNER_EMAIL || "reservationschezleon@gmail.com", msg);
+    if (res === "skipped") { await db.from("notifications").delete().eq("reservation_id", reservationId).eq("kind", "return_declared"); return "skipped"; }
+    return "sent";
+  } catch (e) {
+    await db.from("notifications").delete().eq("reservation_id", reservationId).eq("kind", "return_declared");
+    throw e;
   }
 }

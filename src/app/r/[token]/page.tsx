@@ -3,7 +3,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/reservations/token";
 import { euros, formatParis } from "@/lib/format";
-import { simulateDemoPayment, startDepositAuthorization, startRentalPayment } from "./actions";
+import { declareReturn, simulateDemoPayment, startDepositAuthorization, startRentalPayment } from "./actions";
+import { ReturnCamera } from "@/components/ReturnCamera";
 import { isStripeConfigured } from "@/lib/stripe/client";
 import { Itineraries } from "@/components/Itineraries";
 import { Button } from "@/components/ui/Button";
@@ -13,9 +14,9 @@ const ACCESS_OPENS_BEFORE_MS = 60 * 60 * 1000;
 
 export default async function ReservationPage({
   params, searchParams,
-}: { params: Promise<{ token: string }>; searchParams: Promise<{ paid?: string; deposit?: string; error?: string }> }) {
+}: { params: Promise<{ token: string }>; searchParams: Promise<{ paid?: string; deposit?: string; error?: string; retour?: string }> }) {
   const { token } = await params;
-  const { paid, deposit: depositParam, error: errorParam } = await searchParams;
+  const { paid, deposit: depositParam, error: errorParam, retour } = await searchParams;
   const db = createSupabaseServiceClient();
   await db.rpc("release_expired_holds");
 
@@ -30,6 +31,10 @@ export default async function ReservationPage({
   if (!r) notFound();
 
   const { data: grant } = await db.from("access_grants").select("code, simulated, valid_from, valid_until").eq("reservation_id", r.id).maybeSingle();
+  const [{ count: photoCount }, { count: bikeCount }] = await Promise.all([
+    db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id),
+    db.from("reservation_bike_assignments").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("active", true),
+  ]);
   const now = Date.now();
   const depositOk = r.deposit_status === "authorized";
   const codeVisible = !!grant && depositOk && ["confirmed", "ready"].includes(r.status) && now >= new Date(grant.valid_from).getTime() - ACCESS_OPENS_BEFORE_MS && now <= new Date(grant.valid_until).getTime();
@@ -117,6 +122,19 @@ export default async function ReservationPage({
           ) : (
             <p>{depositOk ? "Votre code s'affichera ici 1 h avant le début de la location." : "Votre code s'affichera ici une fois la caution autorisée, 1 h avant le début de la location."}</p>
           )}
+        </section>
+      )}
+      {["confirmed", "ready", "in_progress"].includes(r.status) && now >= new Date(r.start_at).getTime() && (
+        <section className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
+          <h2 className="text-lg font-semibold">Rendre le vélo</h2>
+          {errorParam === "photos" && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">Il manque des photos : prenez une photo de chaque vélo avant de terminer.</p>}
+          <ReturnCamera token={token} reservationNumber={r.number} needed={Math.max(1, bikeCount ?? 1)} initialCount={photoCount ?? 0} declare={declareReturn.bind(null, token)} />
+        </section>
+      )}
+      {r.status === "return_declared" && (
+        <section className="rounded-xl2 bg-sage/30 p-4">
+          <h2 className="text-lg font-semibold">Restitution enregistrée</h2>
+          <p>{retour ? "Merci !" : ""} Vos photos ont bien été reçues. Nous contrôlons les vélos et libérons votre caution dans les meilleurs délais.</p>
         </section>
       )}
     {!["draft", "pending_payment", "cancelled"].includes(r.status) && (

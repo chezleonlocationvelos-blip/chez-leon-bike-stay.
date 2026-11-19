@@ -1,3 +1,4 @@
+import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -46,6 +47,11 @@ export default async function ReservationDetail({
     supabase.from("commission_transfers").select("stripe_transfer_id, amount_cents").eq("reservation_id", id).maybeSingle(),
     supabase.from("reservation_bike_assignments").select("bikes(internal_code)").eq("reservation_id", id).eq("active", true),
   ]);
+  const { data: photoRows } = await createSupabaseServiceClient().from("reservation_return_photos").select("storage_path, latitude, longitude, accuracy_m, created_at").eq("reservation_id", id).order("created_at");
+  const photos = await Promise.all((photoRows ?? []).map(async (p) => {
+    const { data } = await createSupabaseServiceClient().storage.from("return-photos").createSignedUrl(p.storage_path, 3600);
+    return { ...p, url: data?.signedUrl ?? null };
+  }));
   const acc = r.accommodations as unknown as { name: string; commission_bps: number; stripe_payouts_enabled: boolean };
   const cust = r.customers as unknown as { first_name: string; last_name: string; email: string; phone: string } | null;
   const items = r.reservation_items as unknown as { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
@@ -84,6 +90,20 @@ export default async function ReservationDetail({
         )}
         <p className="mt-1">Caution : {euros(r.deposit_amount_cents)} · statut {r.deposit_status}</p>
       </div>
+
+      {photos.length > 0 && (
+        <div className="rounded-xl2 bg-white p-4">
+          <h2 className="mb-2 text-lg font-semibold">Photos de restitution (prises en direct)</h2>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {photos.map((p, k) => (
+              <li key={k} className="text-sm">
+                {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={p.url} alt={`Photo de restitution ${k + 1}`} className="w-full rounded-xl2" /></a>}
+                <p>Reçue le {formatParis(p.created_at)}{p.latitude != null ? <> · <a className="underline" target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps?q=${p.latitude},${p.longitude}`}>position{p.accuracy_m != null ? ` (±${Math.round(p.accuracy_m)} m)` : ""}</a></> : " · position non partagée"}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {canClose && (
         <form action={closeRental} className="flex max-w-xl flex-col gap-3 rounded-xl2 bg-white p-4">

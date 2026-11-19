@@ -48,3 +48,19 @@ export async function startDepositAuthorization(token: string) {
   const res = await createDepositCheckout(token, hashToken(token));
   redirect(res.ok ? res.url : `/r/${token}?error=${res.error.toLowerCase()}`);
 }
+
+/** Déclare la restitution une fois toutes les photos prises en direct (une par vélo). */
+export async function declareReturn(token: string) {
+  const db = createSupabaseServiceClient();
+  const { data: r } = await db.from("reservations").select("id, status").eq("access_token_hash", hashToken(token)).maybeSingle();
+  if (!r || !["confirmed", "ready", "in_progress"].includes(r.status)) redirect(`/r/${token}`);
+  const [{ count: photos }, { count: bikes }] = await Promise.all([
+    db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id),
+    db.from("reservation_bike_assignments").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("active", true),
+  ]);
+  if ((photos ?? 0) < Math.max(1, bikes ?? 1)) redirect(`/r/${token}?error=photos`);
+  await db.from("reservations").update({ status: "return_declared" }).eq("id", r.id);
+  await db.from("audit_logs").insert({ action: "reservation.return_declared_by_customer", entity: "reservation", entity_id: r.id, details: { photos } });
+  revalidatePath(`/r/${token}`);
+  redirect(`/r/${token}?retour=1`);
+}

@@ -7,3 +7,6 @@ export const bikeStatusLabels: Record<string, string> = {
   available: "Disponible", reserved: "Réservé", rented: "En location", pending_check: "En attente de contrôle",
   maintenance: "En maintenance", unavailable: "Indisponible", stolen: "Volé", retired: "Retiré de la flotte",
 };
+
+/** Libellé d'une ligne vélo, avec la taille si elle a été choisie : « Vélo classique (M) ». */
+export const bikeLineLabel = (label: string, size?: string | null) => (size ? `${label} (taille ${size})` : label);

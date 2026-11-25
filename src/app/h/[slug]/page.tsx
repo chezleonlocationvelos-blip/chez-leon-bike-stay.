@@ -7,7 +7,8 @@ import { DEFAULT_SLOTS } from "@/lib/availability/slots";
 import { TodayBanner } from "@/components/TodayBanner";
 import { DurationPicker } from "@/components/booking/DurationPicker";
 import { BikeCard } from "@/components/booking/BikeCard";
-import { PannierStepper } from "@/components/booking/PannierStepper";
+import { AccessoryStepper } from "@/components/booking/AccessoryStepper";
+import { loadCatalog } from "@/lib/reservations/catalog";
 import { AccommodationReviews } from "@/components/AccommodationReviews";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Itineraries } from "@/components/Itineraries";
@@ -24,7 +25,7 @@ const errors: Record<string, string> = {
   past: "Ce créneau est passé ou trop proche de sa fin. Choisissez un autre créneau.",
   too_long: "La durée maximale de réservation est de 30 jours.",
   no_bikes: "Plus assez de vélos disponibles sur cette période. Essayez d'autres dates, ou moins de vélos.",
-  no_panniers: "Pas assez de sacoches disponibles.",
+  no_panniers: "Un accessoire n'est plus disponible en quantité suffisante sur ces dates. Réduisez la quantité ou changez de dates.",
   rate_limit: "Trop de réservations en cours. Réessayez dans quelques minutes.",
   conflict: "Un autre client vient de réserver ces vélos. Réessayez.",
   not_found: "Hébergement introuvable.",
@@ -42,9 +43,8 @@ export default async function AccommodationPage({
   const { data: acc } = await db.from("accommodations").select("id, name, city, address, is_active, latitude, longitude, mode, access_hours, access_instructions").eq("slug", slug).maybeSingle();
   if (!acc || !acc.is_active) notFound();
 
-  const [{ data: types }, { data: pannier }, { data: s }] = await Promise.all([
-    db.from("bike_types").select("*").eq("is_enabled", true).order("daily_price_cents", { ascending: false }),
-    db.from("accessories").select("daily_price_cents").eq("code", "pannier").eq("is_enabled", true).maybeSingle(),
+  const [catalog, { data: s }] = await Promise.all([
+    loadCatalog(acc.id),
     db.from("application_settings").select("value").eq("key", "half_day_slots").maybeSingle(),
   ]);
   const slots = Array.isArray(s?.value) ? s.value : DEFAULT_SLOTS;
@@ -94,11 +94,15 @@ export default async function AccommodationPage({
 
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-4xl font-bold text-forest">Avec quels vélos ?</h2>
-          {(types ?? []).map((t) => (
+          {catalog.types.length === 0 && (
+            <p className="rounded-xl2 bg-white p-4">Aucun vélo n'est encore proposé ici. Revenez bientôt ou appelez-nous au 06 44 80 71 89.</p>
+          )}
+          {catalog.types.map((t) => (
             <BikeCard
               key={t.id}
               code={t.code}
               label={t.label}
+              sizes={t.sizes}
               electric={t.code === "electric"}
               fromPrice={euros(t.price_from_three_days_cents)}
               halfDay={euros(t.half_day_price_cents)}
@@ -109,7 +113,14 @@ export default async function AccommodationPage({
             />
           ))}
           <p className="text-sm text-charcoal">Casque et antivol inclus.</p>
-          {pannier && <PannierStepper price={euros(pannier.daily_price_cents)} />}
+          {catalog.accessories.length > 0 && (
+            <>
+              <h3 className="mt-2 font-display text-3xl font-bold text-forest">Des accessoires ? <span className="text-xl font-normal text-charcoal">(facultatif)</span></h3>
+              {catalog.accessories.map((a) => (
+                <AccessoryStepper key={a.id} code={a.code} label={a.label} price={euros(a.daily_price_cents)} max={a.stock} />
+              ))}
+            </>
+          )}
         </section>
         </div>
 

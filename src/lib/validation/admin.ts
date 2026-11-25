@@ -40,6 +40,16 @@ export const bikeTypePricingSchema = z.object({
   deposit_eur: z.coerce.number().min(0).max(5000),
 });
 
+export const accessoryPricingSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string().trim().min(2).max(60),
+  price_eur: z.coerce.number().min(0).max(500),
+});
+
+export const accessoryStockSchema = z.object({
+  accommodation_id: z.string().uuid(),
+});
+
 export const maxDepositSchema = z.object({ max_deposit_eur: z.coerce.number().min(0).max(20000) });
 
 /** Statuts modifiables à la main : « réservé » et « en location » sont gérés par le système. */
@@ -48,6 +58,7 @@ export const MANUAL_BIKE_STATUSES = ["available", "unavailable", "maintenance", 
 export const bikeUpdateSchema = z.object({
   id: z.string().uuid(),
   status: z.enum(MANUAL_BIKE_STATUSES),
+  frame_size: z.string().trim().max(20).optional(),
   accommodation_id: z.string().uuid().optional().or(z.literal("")),
   notes: z.string().trim().max(1000).optional(),
 });

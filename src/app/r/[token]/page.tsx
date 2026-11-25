@@ -1,3 +1,4 @@
+import { bikeLineLabel } from "@/lib/labels";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
@@ -25,7 +26,7 @@ export default async function ReservationPage({
     .from("reservations")
     .select(`id, number, status, start_at, end_at, billed_days, total_cents, deposit_amount_cents, deposit_status, is_demo,
              accommodations(name, slug, address, city, mode, latitude, longitude, access_hours, access_instructions),
-             reservation_items(quantity, unit_price_cents, bike_types(label)),
+             reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("access_token_hash", hashToken(token))
     .maybeSingle();
@@ -65,8 +66,8 @@ export default async function ReservationPage({
 
       <section className="rounded-xl2 bg-white p-4">
         <ul className="flex flex-col gap-1">
-          {(r.reservation_items as unknown as { quantity: number; unit_price_cents: number; bike_types: { label: string } }[]).map((i, k) => (
-            <li key={k} className="flex justify-between"><span>{i.quantity} × {i.bike_types.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>
+          {(r.reservation_items as unknown as { quantity: number; unit_price_cents: number; frame_size: string | null; bike_types: { label: string } }[]).map((i, k) => (
+            <li key={k} className="flex justify-between"><span>{i.quantity} × {bikeLineLabel(i.bike_types.label, i.frame_size)}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>
           ))}
           {(r.reservation_accessories as unknown as { quantity: number; unit_price_cents: number; accessories: { label: string } }[]).map((i, k) => (
             <li key={`a${k}`} className="flex justify-between"><span>{i.quantity} × {i.accessories.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>

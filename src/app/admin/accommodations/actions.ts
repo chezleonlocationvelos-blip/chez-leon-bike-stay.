@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
-import { accommodationSchema, emptyToNull } from "@/lib/validation/admin";
+import { accommodationSchema, accessoryStockSchema, emptyToNull } from "@/lib/validation/admin";
 
 export async function saveAccommodation(formData: FormData) {
   const { userId } = await requireRole("admin"); // contrôle serveur systématique
@@ -40,4 +40,27 @@ export async function saveAccommodation(formData: FormData) {
 
   revalidatePath("/admin/accommodations");
   redirect("/admin/accommodations");
+}
+
+/** Stock d'accessoires payants d'un point de location (0 = non proposé à cet endroit). */
+export async function saveAccessoryStock(formData: FormData) {
+  const { userId } = await requireRole("admin");
+  const parsed = accessoryStockSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) redirect("/admin/accommodations");
+  const id = parsed.data.accommodation_id;
+  const rows: { accommodation_id: string; accessory_id: string; stock: number }[] = [];
+  for (const [key, value] of formData.entries()) {
+    if (!key.startsWith("stock_")) continue;
+    const stock = Number(value);
+    if (!Number.isInteger(stock) || stock < 0 || stock > 200) redirect(`/admin/accommodations/${id}?error=stock`);
+    rows.push({ accommodation_id: id, accessory_id: key.slice(6), stock });
+  }
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("accommodation_accessories").upsert(rows, { onConflict: "accommodation_id,accessory_id" });
+  if (error) redirect(`/admin/accommodations/${id}?error=stock`);
+  await createSupabaseServiceClient().from("audit_logs").insert({
+    actor_id: userId, action: "accommodation.accessory_stock", entity: "accommodation", entity_id: id, details: { rows },
+  });
+  revalidatePath(`/admin/accommodations/${id}`);
+  redirect(`/admin/accommodations/${id}?stock=1`);
 }

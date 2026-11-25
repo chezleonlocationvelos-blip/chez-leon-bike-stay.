@@ -1,3 +1,4 @@
+import { bikeLineLabel } from "@/lib/labels";
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl, getStripe } from "./client";
@@ -7,14 +8,14 @@ const EXTENDED_AUTH_FROM_DAYS = 4;          // au-delà, on demande l'autorisati
 
 export type CheckoutResult = { ok: true; url: string } | { ok: false; error: "NOT_FOUND" | "NOT_PAYABLE" | "TOO_EARLY" | "TOTAL_MISMATCH" };
 
-type Items = { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
+type Items = { quantity: number; unit_price_cents: number; frame_size: string | null; bike_types: { label: string } }[];
 type Accs = { quantity: number; unit_price_cents: number; accessories: { label: string } }[];
 
 async function loadReservation(tokenHash: string) {
   const db = createSupabaseServiceClient();
   const { data } = await db.from("reservations")
     .select(`id, number, status, payment_status, deposit_status, start_at, end_at, billed_days, total_cents, deposit_amount_cents, stripe_customer_id,
-             customers(email), reservation_items(quantity, unit_price_cents, bike_types(label)),
+             customers(email), reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("access_token_hash", tokenHash).maybeSingle();
   return data as unknown as {
@@ -31,7 +32,7 @@ export async function createRentalCheckout(token: string, tokenHash: string): Pr
   if (r.status !== "pending_payment" || r.payment_status === "succeeded") return { ok: false, error: "NOT_PAYABLE" };
 
   const lines = [
-    ...r.reservation_items.map((i) => ({ name: i.bike_types.label, qty: i.quantity, unit: i.unit_price_cents })),
+    ...r.reservation_items.map((i) => ({ name: bikeLineLabel(i.bike_types.label, i.frame_size), qty: i.quantity, unit: i.unit_price_cents })),
     ...r.reservation_accessories.map((i) => ({ name: i.accessories.label, qty: i.quantity, unit: i.unit_price_cents })),
   ];
   // Garde-fou : les lignes envoyées à Stripe doivent égaler le total enregistré.

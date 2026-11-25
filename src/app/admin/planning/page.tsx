@@ -7,7 +7,7 @@ import { BOOKABLE_STATUSES, daysCovered, nextDays, parseRange } from "@/lib/avai
 export const dynamic = "force-dynamic";
 const DAYS = 14;
 
-type Bike = { id: string; internal_code: string; status: string; bike_types: { label: string } | null };
+type Bike = { id: string; internal_code: string; status: string; frame_size: string | null; bike_types: { label: string } | null };
 type Assignment = { bike_id: string; period: string; reservations: { id: string; number: string; status: string; customers: { last_name: string | null; first_name: string } | null } | null };
 
 const dayLabel = (d: string) =>
@@ -28,7 +28,7 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
   const nextFrom = nextDays(from, DAYS + 1)[DAYS];
 
   const { data: bikeRows } = await supabase.from("bikes")
-    .select("id, internal_code, status, bike_types(label)")
+    .select("id, internal_code, status, frame_size, bike_types(label)")
     .eq("accommodation_id", acc.id).not("status", "in", "(retired,stolen)").order("internal_code");
   const bikes = (bikeRows ?? []) as unknown as Bike[];
 
@@ -50,9 +50,11 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
     }
   }
 
-  const types = [...new Set(bikes.map((b) => b.bike_types?.label ?? "Autre"))];
+  // Un groupe par type et par taille : « Vélo classique · M ».
+  const group = (b: Bike) => `${b.bike_types?.label ?? "Autre"}${b.frame_size ? ` · ${b.frame_size}` : ""}`;
+  const types = [...new Set(bikes.map(group))];
   const freeCount = (type: string, d: string) =>
-    bikes.filter((b) => (b.bike_types?.label ?? "Autre") === type && BOOKABLE_STATUSES.has(b.status) && !occ.get(b.id)?.has(d)).length;
+    bikes.filter((b) => group(b) === type && BOOKABLE_STATUSES.has(b.status) && !occ.get(b.id)?.has(d)).length;
 
   return (
     <section className="flex flex-col gap-4">
@@ -95,7 +97,7 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
                     return <td key={d} className={`px-2 py-2 text-center text-sm font-bold ${n === 0 ? "text-red-700" : "text-forest"}`}>{n}</td>;
                   })}
                 </tr>
-                {bikes.filter((b) => (b.bike_types?.label ?? "Autre") === type).map((b) => (
+                {bikes.filter((b) => group(b) === type).map((b) => (
                   <tr key={b.id} className="border-t border-sage/20">
                     <th scope="row" className="sticky left-0 z-10 bg-white px-3 py-2 text-left font-normal">
                       <Link className="underline" href={`/admin/bikes/${b.id}`}>{b.internal_code}</Link>

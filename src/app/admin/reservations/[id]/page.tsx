@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { euros, formatParis } from "@/lib/format";
-import { reservationStatusLabels } from "@/lib/labels";
+import { bikeLineLabel, reservationStatusLabels } from "@/lib/labels";
 import { closeRental, retryCommission } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { commissionCents } from "@/lib/pricing";
@@ -36,7 +36,7 @@ export default async function ReservationDetail({
     .select(`id, number, status, payment_status, deposit_status, start_at, end_at, total_cents, deposit_amount_cents, is_demo, return_attested_at,
              accommodations(name, commission_bps, stripe_payouts_enabled),
              customers(first_name, last_name, email, phone),
-             reservation_items(quantity, unit_price_cents, bike_types(label)),
+             reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("id", id).maybeSingle();
   if (!r) notFound();
@@ -54,7 +54,7 @@ export default async function ReservationDetail({
   }));
   const acc = r.accommodations as unknown as { name: string; commission_bps: number; stripe_payouts_enabled: boolean };
   const cust = r.customers as unknown as { first_name: string; last_name: string; email: string; phone: string } | null;
-  const items = r.reservation_items as unknown as { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
+  const items = r.reservation_items as unknown as { quantity: number; unit_price_cents: number; frame_size: string | null; bike_types: { label: string } }[];
   const accs = r.reservation_accessories as unknown as { quantity: number; unit_price_cents: number; accessories: { label: string } }[];
   const bikeCodes = (bikes ?? []).map((b) => (b.bikes as unknown as { internal_code: string }).internal_code).join(", ");
   const canClose = ["confirmed", "ready", "in_progress", "return_declared"].includes(r.status);
@@ -76,7 +76,7 @@ export default async function ReservationDetail({
 
       <div className="rounded-xl2 bg-white p-4">
         <ul className="flex flex-col gap-1">
-          {items.map((i, k) => <li key={k} className="flex justify-between"><span>{i.quantity} × {i.bike_types.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>)}
+          {items.map((i, k) => <li key={k} className="flex justify-between"><span>{i.quantity} × {bikeLineLabel(i.bike_types.label, i.frame_size)}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>)}
           {accs.map((i, k) => <li key={`a${k}`} className="flex justify-between"><span>{i.quantity} × {i.accessories.label}</span><span>{euros(i.quantity * i.unit_price_cents)}</span></li>)}
           <li className="flex justify-between border-t border-line pt-2 font-semibold"><span>Total</span><span>{euros(r.total_cents)}</span></li>
           <li className="flex justify-between text-sm"><span>Commission hébergeur ({acc.commission_bps / 100} %)</span><span>{euros(commission)}</span></li>

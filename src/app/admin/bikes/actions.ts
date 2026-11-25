@@ -13,6 +13,7 @@ export async function createBike(formData: FormData) {
 
   const row = { ...emptyToNull(parsed.data), status: "unavailable" as const };
   const supabase = await createSupabaseServerClient();
+  if (!(await sizeAllowed(supabase, parsed.data.bike_type_id, parsed.data.frame_size))) redirect("/admin/bikes/new?error=size");
   const { data, error } = await supabase.from("bikes").insert(row).select("id").single();
   if (error || !data) redirect(`/admin/bikes/new?error=${error?.code === "23505" ? "duplicate" : "save"}`);
 
@@ -22,4 +23,11 @@ export async function createBike(formData: FormData) {
   });
   revalidatePath("/admin/bikes");
   redirect("/admin/bikes");
+}
+
+/** Une taille doit appartenir à la liste du type ; un type sans tailles n'accepte que « taille unique ». */
+async function sizeAllowed(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>, typeId: string, size?: string | null) {
+  const { data } = await supabase.from("bike_types").select("sizes").eq("id", typeId).maybeSingle();
+  const sizes = (data?.sizes ?? []) as string[];
+  return size ? sizes.includes(size) : sizes.length === 0;
 }

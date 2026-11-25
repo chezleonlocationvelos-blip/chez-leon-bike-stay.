@@ -1,3 +1,4 @@
+import { bikeLineLabel } from "@/lib/labels";
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl } from "@/lib/stripe/client";
@@ -14,13 +15,13 @@ async function load(id: string) {
   const { data } = await db.from("reservations")
     .select(`id, number, start_at, end_at, total_cents, deposit_amount_cents, access_token_enc,
              accommodations(name, slug, mode, address, city, access_hours), customers(first_name, last_name, email, phone),
-             reservation_items(quantity, unit_price_cents, bike_types(label)),
+             reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("id", id).maybeSingle();
   return data as unknown as {
     id: string; number: string; start_at: string; end_at: string; total_cents: number; deposit_amount_cents: number; access_token_enc: string | null;
     accommodations: { name: string; slug: string; mode: string; address: string | null; city: string | null; access_hours: string | null }; customers: { first_name: string; last_name: string | null; email: string; phone: string | null };
-    reservation_items: { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
+    reservation_items: { quantity: number; unit_price_cents: number; frame_size: string | null; bike_types: { label: string } }[];
     reservation_accessories: { quantity: number; unit_price_cents: number; accessories: { label: string } }[];
   } | null;
 }
@@ -51,7 +52,7 @@ export async function notify(reservationId: string, kind: Kind): Promise<"sent" 
       ? confirmationEmail({
           ...base, tip: localTip(r.accommodations.slug), totalCents: r.total_cents, depositCents: r.deposit_amount_cents,
           lines: [
-            ...r.reservation_items.map((i) => ({ label: i.bike_types.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
+            ...r.reservation_items.map((i) => ({ label: bikeLineLabel(i.bike_types.label, i.frame_size), qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
             ...r.reservation_accessories.map((i) => ({ label: i.accessories.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
           ],
         })
@@ -79,7 +80,7 @@ async function notifyOwner(
       customerEmail: r.customers.email, customerPhone: r.customers.phone ?? "téléphone non renseigné",
       totalCents: r.total_cents, depositCents: r.deposit_amount_cents,
       lines: [
-        ...r.reservation_items.map((i) => ({ label: i.bike_types.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
+        ...r.reservation_items.map((i) => ({ label: bikeLineLabel(i.bike_types.label, i.frame_size), qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
         ...r.reservation_accessories.map((i) => ({ label: i.accessories.label, qty: i.quantity, totalCents: i.quantity * i.unit_price_cents })),
       ],
       adminLink: `${appUrl()}/admin/reservations/${r.id}`,

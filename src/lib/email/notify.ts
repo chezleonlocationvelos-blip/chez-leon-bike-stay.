@@ -2,6 +2,7 @@ import { bikeLineLabel } from "@/lib/labels";
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl } from "@/lib/stripe/client";
+import { shopUrl } from "@/lib/accommodations";
 import { decrypt, hasAppSecret } from "@/lib/crypto";
 import { formatParis } from "@/lib/format";
 import { localTip } from "@/lib/localTips";
@@ -41,7 +42,7 @@ export async function notify(reservationId: string, kind: Kind): Promise<"sent" 
     const base = {
       firstName: r.customers.first_name, number: r.number, accommodation: r.accommodations.name,
       startLabel: formatParis(r.start_at), endLabel: formatParis(r.end_at),
-      link: `${appUrl()}/r/${decrypt(r.access_token_enc)}`,
+      link: `${r.accommodations.mode === "counter" ? shopUrl() : appUrl()}/r/${decrypt(r.access_token_enc)}`,
       counter: r.accommodations.mode === "counter"
         ? { address: [r.accommodations.address, r.accommodations.city].filter(Boolean).join(", ") || null, hours: r.accommodations.access_hours }
         : undefined,

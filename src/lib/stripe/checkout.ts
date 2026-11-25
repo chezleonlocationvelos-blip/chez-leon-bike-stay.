@@ -2,6 +2,7 @@ import { bikeLineLabel } from "@/lib/labels";
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl, getStripe } from "./client";
+import { shopUrl } from "@/lib/accommodations";
 
 const DEPOSIT_WINDOW_MS = 24 * 3600 * 1000; // la caution s'autorise dans les 24 h avant le retrait
 const EXTENDED_AUTH_FROM_DAYS = 4;          // au-delà, on demande l'autorisation étendue si la carte le permet
@@ -15,15 +16,18 @@ async function loadReservation(tokenHash: string) {
   const db = createSupabaseServiceClient();
   const { data } = await db.from("reservations")
     .select(`id, number, status, payment_status, deposit_status, start_at, end_at, billed_days, total_cents, deposit_amount_cents, stripe_customer_id,
-             customers(email), reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
+             accommodations(mode), customers(email), reservation_items(quantity, unit_price_cents, frame_size, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("access_token_hash", tokenHash).maybeSingle();
   return data as unknown as {
     id: string; number: string; status: string; payment_status: string; deposit_status: string; start_at: string; end_at: string;
     billed_days: number; total_cents: number; deposit_amount_cents: number; stripe_customer_id: string | null;
-    customers: { email: string } | null; reservation_items: Items; reservation_accessories: Accs;
+    accommodations: { mode: string } | null; customers: { email: string } | null; reservation_items: Items; reservation_accessories: Accs;
   } | null;
 }
+
+/** Le client revient sur l'adresse de la boutique ou sur Bike & Stay selon le point de location. */
+const baseFor = (r: { accommodations: { mode: string } | null }) => (r.accommodations?.mode === "counter" ? shopUrl() : appUrl());
 
 /** Paiement de la location (hébergé par Stripe). Les montants viennent de la base, jamais du navigateur. */
 export async function createRentalCheckout(token: string, tokenHash: string): Promise<CheckoutResult> {
@@ -54,8 +58,8 @@ export async function createRentalCheckout(token: string, tokenHash: string): Pr
     metadata: meta,
     payment_intent_data: { transfer_group: r.number, metadata: meta },
     expires_at: Math.floor(Date.now() / 1000) + 30 * 60 + 30, // minimum Stripe : 30 min
-    success_url: `${appUrl()}/r/${token}?paid=1`,
-    cancel_url: `${appUrl()}/r/${token}`,
+    success_url: `${baseFor(r)}/r/${token}?paid=1`,
+    cancel_url: `${baseFor(r)}/r/${token}`,
   });
   return session.url ? { ok: true, url: session.url } : { ok: false, error: "NOT_PAYABLE" };
 }
@@ -89,8 +93,8 @@ export async function createDepositCheckout(token: string, tokenHash: string, no
       ? { payment_method_options: { card: { request_extended_authorization: "if_available" as const } } }
       : {}),
     expires_at: Math.floor(Date.now() / 1000) + 30 * 60 + 30,
-    success_url: `${appUrl()}/r/${token}?deposit=1`,
-    cancel_url: `${appUrl()}/r/${token}`,
+    success_url: `${baseFor(r)}/r/${token}?deposit=1`,
+    cancel_url: `${baseFor(r)}/r/${token}`,
   });
   return session.url ? { ok: true, url: session.url } : { ok: false, error: "NOT_PAYABLE" };
 }

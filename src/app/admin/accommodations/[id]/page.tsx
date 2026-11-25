@@ -31,7 +31,7 @@ export default async function EditAccommodation({
       </div>
       {data.mode === "counter" ? (
         <p className="rounded-xl2 bg-accent/40 p-4 text-sm">
-          Boutique Chez Léon : retrait au comptoir, pas de commission ni de Stripe Connect. Lien de réservation à mettre sur chezleonlocation.com : <code>/reserver</code> (ou <code>/h/{data.slug}</code>).
+          Boutique Chez Léon : retrait au comptoir, pas de commission ni de Stripe Connect. Adresse de réservation de la boutique : <code>https://reserver.chezleonlocation.com</code>.
         </p>
       ) : (
       <div className="flex flex-col gap-2 rounded-xl2 bg-white p-4">

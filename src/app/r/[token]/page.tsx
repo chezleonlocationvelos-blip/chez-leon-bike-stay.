@@ -54,7 +54,7 @@ export default async function ReservationPage({
 
   return (
     <>
-    <SiteHeader />
+    <SiteHeader variant={counter ? "shop" : "stay"} />
     <main className="mx-auto flex max-w-3xl flex-col gap-5 p-6">
       <h1 className="text-5xl font-bold text-forest">Réservation {r.number}</h1>
 

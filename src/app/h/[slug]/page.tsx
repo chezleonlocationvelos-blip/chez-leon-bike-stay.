@@ -13,7 +13,7 @@ import { AccommodationReviews } from "@/components/AccommodationReviews";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
-import { isCounter } from "@/lib/accommodations";
+import { isCounter, SHOP_SLUG } from "@/lib/accommodations";
 import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
@@ -32,7 +32,12 @@ const errors: Record<string, string> = {
   server: "Une erreur est survenue. Réessayez dans un instant.",
 };
 
-export const metadata = { title: "Louer un vélo – Chez Léon" };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  return slug === SHOP_SLUG
+    ? { title: "Réserver un vélo – Chez Léon, Savonnières", description: "Location de vélos à Savonnières, sur la Loire à Vélo près de Villandry : réservez et payez en ligne, retrait à la boutique." }
+    : { title: "Louer un vélo – Chez Léon" };
+}
 
 export default async function AccommodationPage({
   params, searchParams,
@@ -56,7 +61,7 @@ export default async function AccommodationPage({
 
   return (
     <>
-    <SiteHeader />
+    <SiteHeader variant={counter ? "shop" : "stay"} />
     <section
       className="bg-gradient-to-b from-[#6c7f45] to-sage bg-cover bg-center"
       style={photo ? { backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.15) 0%, rgba(47,61,25,0.7) 100%), url(${photo})` } : undefined}

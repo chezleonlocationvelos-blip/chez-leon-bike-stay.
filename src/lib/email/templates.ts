@@ -73,7 +73,17 @@ export function ownerNewReservationEmail(d: OwnerNewReservationData) {
   return { subject: `Nouvelle réservation ${d.number} : ${d.accommodation}`, html, text };
 }
 
-export function reviewRequestEmail(d: { firstName: string; accommodation: string; number: string; link: string }) {
+export function reviewRequestEmail(d: { firstName: string; accommodation: string; number: string; link: string; googleUrl?: string }) {
+  if (d.googleUrl) {
+    // Boutique Chez Léon : on invite directement à laisser un avis sur la fiche Google.
+    const html = wrap("Comment s'est passée votre sortie ?",
+      `<p>Bonjour ${esc(d.firstName)}, merci d'avoir roulé avec Chez Léon !</p>
+       <p>Chez Léon est une petite entreprise familiale à Savonnières. Votre avis sur Google aide énormément les prochains voyageurs à nous trouver et à nous faire confiance. Cela prend une minute.</p>
+       ${button(d.googleUrl, "Laisser un avis sur Google")}
+       <p style="font-size:13px;color:#5D6F3A">Un souci pendant votre location ? Répondez simplement à ce mail ou appelez le 06 44 80 71 89 : on veut le savoir.</p>`);
+    const text = `Bonjour ${d.firstName}, merci d'avoir roulé avec Chez Léon !\nVotre avis sur Google aide énormément notre petite entreprise familiale (une minute) : ${d.googleUrl}\nUn souci ? Répondez à ce mail ou appelez le 06 44 80 71 89.`;
+    return { subject: `Merci d'avoir roulé avec Chez Léon (${d.number})`, html, text };
+  }
   const html = wrap("Comment s'est passée votre sortie ?",
     `<p>Bonjour ${esc(d.firstName)}, merci d'avoir roulé avec Chez Léon depuis ${esc(d.accommodation)} !</p>
      <p>Votre avis nous aide à nous améliorer et guide les prochains voyageurs. Une note et, si vous le souhaitez, quelques mots : cela prend une minute.</p>

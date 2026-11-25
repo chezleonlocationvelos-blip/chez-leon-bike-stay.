@@ -13,7 +13,7 @@ import { AccommodationReviews } from "@/components/AccommodationReviews";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
-import { isCounter, SHOP_SLUG } from "@/lib/accommodations";
+import { GOOGLE_RATING, GOOGLE_REVIEWS_URL, isCounter, SHOP_SLUG } from "@/lib/accommodations";
 import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
@@ -69,6 +69,12 @@ export default async function AccommodationPage({
       <div className={`mx-auto flex max-w-5xl flex-col justify-end px-6 pb-6 md:pb-10 ${photo ? "pt-32 md:pt-56" : "pt-14 md:pt-24"}`}>
         <h1 className="text-6xl font-bold leading-[0.95] text-white md:text-8xl">{counter ? "Réservez vos vélos" : "Louer un vélo"}</h1>
         <p className="mt-2 text-white">{acc.name}{acc.city ? `, ${acc.city}` : ""}{counter ? " · retrait à la boutique" : ""}</p>
+        {counter && (
+          <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-white/90 px-4 py-1.5 text-sm text-forest backdrop-blur hover:bg-white">
+            <span aria-hidden="true" className="tracking-widest text-sage">★★★★★</span>
+            <span><strong>{GOOGLE_RATING.score}</strong> · {GOOGLE_RATING.count} avis Google</span>
+          </a>
+        )}
       </div>
     </section>
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">

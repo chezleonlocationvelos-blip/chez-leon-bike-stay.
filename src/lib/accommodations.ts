@@ -14,3 +14,9 @@ export const shopUrl = () => process.env.SHOP_URL ?? `https://${SHOP_HOST}`;
 export const SHOP_SLUG = "boutique-savonnieres";
 /** Site vitrine de la boutique (WordPress). */
 export const SHOWCASE_URL = "https://chezleonlocation.com";
+
+/** Fiche Google de la boutique (avis réels uniquement). Note et nombre à mettre à jour de temps en temps. */
+export const GOOGLE_PLACE_ID = "ChIJ87_088Ev_UcRBRW6MEkzEI8";
+export const GOOGLE_REVIEWS_URL = `https://search.google.com/local/reviews?placeid=${GOOGLE_PLACE_ID}`;
+export const GOOGLE_WRITE_REVIEW_URL = `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`;
+export const GOOGLE_RATING = { score: "5,0", count: 60 };

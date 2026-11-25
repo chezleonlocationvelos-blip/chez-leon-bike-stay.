@@ -2,7 +2,7 @@ import { bikeLineLabel } from "@/lib/labels";
 import "server-only";
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
 import { appUrl } from "@/lib/stripe/client";
-import { shopUrl } from "@/lib/accommodations";
+import { GOOGLE_WRITE_REVIEW_URL, shopUrl } from "@/lib/accommodations";
 import { decrypt, hasAppSecret } from "@/lib/crypto";
 import { formatParis } from "@/lib/format";
 import { localTip } from "@/lib/localTips";
@@ -48,7 +48,7 @@ export async function notify(reservationId: string, kind: Kind): Promise<"sent" 
         : undefined,
     };
     const msg = kind === "review_request"
-      ? reviewRequestEmail({ firstName: base.firstName, accommodation: base.accommodation, number: base.number, link: base.link.replace("/r/", "/avis/") })
+      ? reviewRequestEmail({ firstName: base.firstName, accommodation: base.accommodation, number: base.number, link: base.link.replace("/r/", "/avis/"), googleUrl: r.accommodations.mode === "counter" ? GOOGLE_WRITE_REVIEW_URL : undefined })
       : kind === "confirmation"
       ? confirmationEmail({
           ...base, tip: localTip(r.accommodations.slug), totalCents: r.total_cents, depositCents: r.deposit_amount_cents,

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { GOOGLE_WRITE_REVIEW_URL } from "@/lib/accommodations";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StarRating } from "@/components/StarRating";
 import { Button } from "@/components/ui/Button";
@@ -15,10 +16,10 @@ export default async function ReviewPage({
   const { merci, error } = await searchParams;
   const db = createSupabaseServiceClient();
   const { data: r } = await db.from("reservations")
-    .select("id, status, is_demo, accommodations(name), customers(first_name, last_name)")
+    .select("id, status, is_demo, accommodations(name, mode), customers(first_name, last_name)")
     .eq("access_token_hash", hashToken(token)).maybeSingle();
   if (!r || r.is_demo) notFound();
-  const acc = r.accommodations as unknown as { name: string };
+  const acc = r.accommodations as unknown as { name: string; mode: string };
   const cust = r.customers as unknown as { first_name: string; last_name: string | null };
   const { data: existing } = await db.from("reviews").select("id").eq("reservation_id", r.id).maybeSingle();
   const defaultName = `${cust.first_name}${cust.last_name ? ` ${cust.last_name.charAt(0).toUpperCase()}.` : ""}`;
@@ -31,6 +32,12 @@ export default async function ReviewPage({
           <>
             <h1 className="text-5xl font-bold text-forest">Merci !</h1>
             <p>Votre avis a bien été reçu. Il sera publié sur la page de l'hébergement après une relecture rapide.</p>
+            {acc.mode === "counter" && (
+              <p>
+                Encore 30 secondes ? Le même avis sur Google aide énormément notre petite entreprise familiale.{" "}
+                <a href={GOOGLE_WRITE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="font-bold underline">Laisser un avis sur Google</a>
+              </p>
+            )}
           </>
         ) : r.status !== "completed" ? (
           <>

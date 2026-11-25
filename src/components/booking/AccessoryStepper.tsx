@@ -6,6 +6,7 @@ const HINTS: Record<string, string> = {
   pannier: "Pour emporter pique-nique et affaires",
   phone_holder: "Votre GPS sous les yeux, au guidon",
   child_trailer: "Pour emmener les plus petits",
+  baby_seat: "Siège porte-bébé fixé sur le vélo adulte",
   girafe: "Demi-vélo accroché au vôtre : l'enfant pédale en toute sécurité",
 };
 

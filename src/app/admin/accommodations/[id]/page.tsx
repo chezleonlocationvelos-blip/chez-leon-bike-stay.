@@ -23,6 +23,11 @@ export default async function EditAccommodation({
         <a className="underline" href={`/admin/accommodations/${id}/qr?format=svg`}>SVG</a>
         <a className="underline" href={`/admin/accommodations/${id}/qr?format=svg`} target="_blank" rel="noreferrer">Aperçu imprimable</a>
       </div>
+      {data.mode === "counter" ? (
+        <p className="rounded-xl2 bg-accent/40 p-4 text-sm">
+          Boutique Chez Léon : retrait au comptoir, pas de commission ni de Stripe Connect. Lien de réservation à mettre sur chezleonlocation.com : <code>/reserver</code> (ou <code>/h/{data.slug}</code>).
+        </p>
+      ) : (
       <div className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
         <h2 className="font-semibold">Versement de la commission (Stripe Connect)</h2>
         <p className="text-sm">
@@ -36,6 +41,7 @@ export default async function EditAccommodation({
           </form>
         ) : <p className="text-sm">Stripe n'est pas configuré (STRIPE_SECRET_KEY absente).</p>}
       </div>
+      )}
       <AccommodationForm values={data} error={error} />
     </section>
   );

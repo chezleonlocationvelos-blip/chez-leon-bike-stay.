@@ -8,6 +8,7 @@ import { ReturnCamera } from "@/components/ReturnCamera";
 import { isStripeConfigured } from "@/lib/stripe/client";
 import { Itineraries } from "@/components/Itineraries";
 import { Button } from "@/components/ui/Button";
+import { isCounter } from "@/lib/accommodations";
 
 export const metadata = { title: "Ma réservation – Chez Léon", robots: { index: false, follow: false } };
 const ACCESS_OPENS_BEFORE_MS = 60 * 60 * 1000;
@@ -23,7 +24,7 @@ export default async function ReservationPage({
   const { data: r } = await db
     .from("reservations")
     .select(`id, number, status, start_at, end_at, billed_days, total_cents, deposit_amount_cents, deposit_status, is_demo,
-             accommodations(name, slug, latitude, longitude, access_hours, access_instructions),
+             accommodations(name, slug, address, city, mode, latitude, longitude, access_hours, access_instructions),
              reservation_items(quantity, unit_price_cents, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("access_token_hash", hashToken(token))
@@ -38,7 +39,8 @@ export default async function ReservationPage({
   const now = Date.now();
   const depositOk = r.deposit_status === "authorized";
   const codeVisible = !!grant && depositOk && ["confirmed", "ready"].includes(r.status) && now >= new Date(grant.valid_from).getTime() - ACCESS_OPENS_BEFORE_MS && now <= new Date(grant.valid_until).getTime();
-  const acc = r.accommodations as unknown as { name: string; slug: string; latitude: number | null; longitude: number | null; access_hours: string | null; access_instructions: string | null };
+  const acc = r.accommodations as unknown as { name: string; slug: string; address: string | null; city: string | null; mode: string; latitude: number | null; longitude: number | null; access_hours: string | null; access_instructions: string | null };
+  const counter = isCounter(acc);
   const demo = process.env.NEXT_PUBLIC_DEMO_MODE === "true" && r.is_demo;
   const live = !demo && isStripeConfigured();
   const depositOpensAt = new Date(r.start_at).getTime() - 24 * 3600 * 1000;
@@ -104,12 +106,21 @@ export default async function ReservationPage({
           {Date.now() >= depositOpensAt ? (
             <form action={startDepositAuthorization.bind(null, token)}><Button type="submit">Autoriser la caution</Button></form>
           ) : (
-            <p>Vous pourrez l'autoriser à partir du {formatParis(new Date(depositOpensAt))}. C'est elle qui débloque l'affichage du code d'accès.</p>
+            <p>Vous pourrez l'autoriser à partir du {formatParis(new Date(depositOpensAt))}. {counter ? "Autorisez-la avant de venir à la boutique : le retrait sera plus rapide." : "C'est elle qui débloque l'affichage du code d'accès."}</p>
           )}
         </section>
       )}
 
-      {(r.status === "confirmed" || r.status === "ready") && (
+      {counter && ["confirmed", "ready", "in_progress"].includes(r.status) && (
+        <section className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
+          <h2 className="text-lg font-semibold">Retrait à la boutique</h2>
+          {acc.address && <p>{acc.address}{acc.city ? `, ${acc.city}` : ""}</p>}
+          {acc.access_hours && <p>Horaires : {acc.access_hours}</p>}
+          {acc.access_instructions && <p>{acc.access_instructions}</p>}
+          <p>Présentez simplement votre numéro de réservation <strong>{r.number}</strong>. Retour des vélos à la boutique au plus tard le {formatParis(r.end_at)}.</p>
+        </section>
+      )}
+      {!counter && (r.status === "confirmed" || r.status === "ready") && (
         <section className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
           <h2 className="text-lg font-semibold">Accès aux vélos</h2>
           {acc.access_hours && <p>Horaires d'accès : {acc.access_hours}</p>}
@@ -124,7 +135,7 @@ export default async function ReservationPage({
           )}
         </section>
       )}
-      {["confirmed", "ready", "in_progress"].includes(r.status) && now >= new Date(r.start_at).getTime() && (
+      {!counter && ["confirmed", "ready", "in_progress"].includes(r.status) && now >= new Date(r.start_at).getTime() && (
         <section className="flex flex-col gap-2 rounded-xl2 bg-white p-4">
           <h2 className="text-lg font-semibold">Rendre le vélo</h2>
           {errorParam === "photos" && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">Il manque des photos : une par vélo et une de la boîte à clés.</p>}

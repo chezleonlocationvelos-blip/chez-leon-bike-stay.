@@ -12,7 +12,7 @@ export default async function AdminHome() {
     supabase.from("reservations").select("id", { count: "exact", head: true }).in("status", ["confirmed", "ready"]).gt("end_at", new Date().toISOString()),
   ]);
   const cards = [
-    { label: "Retours à clôturer", n: declared.count ?? 0, href: "/admin/reservations", hint: "Retours déclarés par les hébergeurs" },
+    { label: "Retours à clôturer", n: declared.count ?? 0, href: "/admin/reservations", hint: "Retours déclarés par les clients (hébergements)" },
     { label: "Vélos à contrôler", n: check.count ?? 0, href: "/admin/bikes", hint: "Remettre en « Disponible » après contrôle et changement du code" },
     { label: "Cautions à surveiller (48 h)", n: noDeposit.count ?? 0, href: "/admin/reservations", hint: "Locations proches sans caution autorisée" },
     { label: "Réservations à venir ou en cours", n: upcoming.count ?? 0, href: "/admin/reservations", hint: "Confirmées ou prêtes" },
@@ -20,6 +20,10 @@ export default async function AdminHome() {
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold text-forest">{getMessages().admin.title}</h1>
+      <Link href="/admin/planning" className="rounded-xl2 bg-forest p-4 text-white hover:opacity-90">
+        <div className="font-bold">Planning du stock →</div>
+        <div className="text-sm opacity-90">Vos vélos jour par jour, réservations et vélos libres (boutique et hébergements).</div>
+      </Link>
       <div className="grid gap-3 sm:grid-cols-2">
         {cards.map((c) => (
           <Link key={c.label} href={c.href} className="rounded-xl2 bg-white p-4 hover:bg-sage/20">

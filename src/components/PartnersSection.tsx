@@ -28,7 +28,7 @@ export async function PartnersSection() {
   return (
     <section id="hebergements" className="scroll-mt-24">
       <h2 className="mb-3 font-display text-4xl font-bold text-forest">Où louer un vélo</h2>
-      <p className="mb-3 text-sm">Choisissez un hébergement partenaire pour réserver votre vélo en quelques minutes.</p>
+      <p className="mb-3 text-sm">Choisissez la boutique Chez Léon à Savonnières ou un hébergement partenaire pour réserver votre vélo en quelques minutes.</p>
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
       {points.length > 0 && <div className="lg:sticky lg:top-6"><PartnersMap points={points} /></div>}
       <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:mt-0 lg:grid-cols-1">

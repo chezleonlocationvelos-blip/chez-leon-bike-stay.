@@ -52,8 +52,10 @@ export async function startDepositAuthorization(token: string) {
 /** Déclare la restitution : une photo par vélo + une photo de la boîte à clés + attestation cochée. Alerte le gérant. */
 export async function declareReturn(token: string, formData: FormData) {
   const db = createSupabaseServiceClient();
-  const { data: r } = await db.from("reservations").select("id, status").eq("access_token_hash", hashToken(token)).maybeSingle();
+  const { data: r } = await db.from("reservations").select("id, status, accommodations(mode)").eq("access_token_hash", hashToken(token)).maybeSingle();
   if (!r || !["confirmed", "ready", "in_progress"].includes(r.status)) redirect(`/r/${token}`);
+  // Boutique : le retour se fait au comptoir, pas de déclaration en ligne.
+  if ((r.accommodations as unknown as { mode: string } | null)?.mode === "counter") redirect(`/r/${token}`);
   if (formData.get("attest") !== "on") redirect(`/r/${token}?error=attest`);
   const [{ count: bikePhotos }, { count: keyPhotos }, { count: bikes }] = await Promise.all([
     db.from("reservation_return_photos").select("id", { count: "exact", head: true }).eq("reservation_id", r.id).eq("kind", "bike"),

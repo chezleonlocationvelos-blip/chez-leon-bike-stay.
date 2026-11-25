@@ -17,7 +17,8 @@ export async function saveAccommodation(formData: FormData) {
   const { commission_percent, ...rest } = parsed.data;
   const row = {
     ...emptyToNull(rest),
-    commission_bps: Math.round(commission_percent * 100),
+    // La boutique Chez Léon n'a jamais de commission : c'est Chez Léon qui encaisse.
+    commission_bps: rest.mode === "counter" ? 0 : Math.round(commission_percent * 100),
     is_active: formData.get("is_active") === "on",
   };
 
@@ -34,7 +35,7 @@ export async function saveAccommodation(formData: FormData) {
     action: id ? "accommodation.update" : "accommodation.create",
     entity: "accommodation",
     entity_id: data.id,
-    details: { commission_bps: row.commission_bps, is_active: row.is_active },
+    details: { commission_bps: row.commission_bps, is_active: row.is_active, mode: rest.mode },
   });
 
   revalidatePath("/admin/accommodations");

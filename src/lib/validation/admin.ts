@@ -13,6 +13,7 @@ export const accommodationSchema = z.object({
   access_hours: z.string().trim().max(120).optional(),
   access_instructions: z.string().trim().max(1000).optional(),
   commission_percent: z.coerce.number().min(0).max(100),
+  mode: z.enum(["self_service", "counter"]).default("self_service"),
 });
 
 export const bikeSchema = z.object({

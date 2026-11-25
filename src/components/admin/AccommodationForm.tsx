@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 type Values = Partial<{
   id: string; name: string; slug: string; type: string; address: string; city: string;
   postal_code: string; email: string; phone: string; manager_name: string;
-  access_hours: string; access_instructions: string; commission_bps: number; is_active: boolean;
+  access_hours: string; access_instructions: string; commission_bps: number; is_active: boolean; mode: string;
 }>;
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
@@ -31,6 +31,14 @@ export function AccommodationForm({ values = {}, error }: { values?: Values; err
     <form action={saveAccommodation} className="flex max-w-xl flex-col gap-4">
       {values.id && <input type="hidden" name="id" value={values.id} />}
       {error && <p role="alert" className="rounded-xl2 bg-red-50 p-3 text-red-800">{messages[error] ?? messages.save}</p>}
+      <label className="flex flex-col gap-1">
+        <span>Fonctionnement *</span>
+        <select name="mode" defaultValue={values.mode ?? "self_service"} className={input}>
+          <option value="self_service">Hébergement partenaire : libre-service (boîte à clés), avec commission</option>
+          <option value="counter">Boutique Chez Léon : retrait et retour au comptoir, sans commission</option>
+        </select>
+        <span className="text-sm text-charcoal/70">En mode boutique : pas de code d'accès, pas de photos de retour, commission forcée à 0 %.</span>
+      </label>
       <Field label="Nom commercial" name="name" defaultValue={values.name} required />
       <Field label="Adresse web (slug)" name="slug" defaultValue={values.slug} required
         hint="Définit le lien du QR code : /h/<slug>. Ne le changez pas après impression des QR codes." />
@@ -41,8 +49,8 @@ export function AccommodationForm({ values = {}, error }: { values?: Values; err
       <Field label="Email" name="email" type="email" defaultValue={values.email} />
       <Field label="Téléphone" name="phone" defaultValue={values.phone} />
       <Field label="Responsable" name="manager_name" defaultValue={values.manager_name} />
-      <Field label="Horaires d'accès au local" name="access_hours" defaultValue={values.access_hours} />
-      <Field label="Instructions d'accès" name="access_instructions" defaultValue={values.access_instructions} />
+      <Field label="Horaires d'accès au local (ou d'ouverture de la boutique)" name="access_hours" defaultValue={values.access_hours} />
+      <Field label="Instructions d'accès (ou de retrait en boutique)" name="access_instructions" defaultValue={values.access_instructions} />
       <Field label="Commission (%)" name="commission_percent" type="number" required
         defaultValue={((values.commission_bps ?? 2000) / 100).toString()} />
       <label className="flex items-center gap-2">

@@ -12,6 +12,7 @@ import { AccommodationReviews } from "@/components/AccommodationReviews";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Itineraries } from "@/components/Itineraries";
 import { SiteHeader } from "@/components/SiteHeader";
+import { isCounter } from "@/lib/accommodations";
 import { ACCOMMODATION_GALLERY, ACCOMMODATION_PHOTOS, DEFAULT_ACCOMMODATION_PHOTO } from "@/lib/photos";
 
 const input = "min-h-12 rounded-xl2 border border-line bg-white px-4";
@@ -38,7 +39,7 @@ export default async function AccommodationPage({
   const { slug } = await params;
   const { error } = await searchParams;
   const db = createSupabaseServiceClient();
-  const { data: acc } = await db.from("accommodations").select("id, name, city, is_active, latitude, longitude").eq("slug", slug).maybeSingle();
+  const { data: acc } = await db.from("accommodations").select("id, name, city, address, is_active, latitude, longitude, mode, access_hours, access_instructions").eq("slug", slug).maybeSingle();
   if (!acc || !acc.is_active) notFound();
 
   const [{ data: types }, { data: pannier }, { data: s }] = await Promise.all([
@@ -51,6 +52,7 @@ export default async function AccommodationPage({
   const submit = submitReservation.bind(null, slug);
   const photo = ACCOMMODATION_PHOTOS[slug] ?? DEFAULT_ACCOMMODATION_PHOTO;
   const gallery = ACCOMMODATION_GALLERY[slug] ?? [];
+  const counter = isCounter(acc);
 
   return (
     <>
@@ -60,12 +62,21 @@ export default async function AccommodationPage({
       style={photo ? { backgroundImage: `linear-gradient(180deg, rgba(47,61,25,0.15) 0%, rgba(47,61,25,0.7) 100%), url(${photo})` } : undefined}
     >
       <div className={`mx-auto flex max-w-5xl flex-col justify-end px-6 pb-6 md:pb-10 ${photo ? "pt-32 md:pt-56" : "pt-14 md:pt-24"}`}>
-        <h1 className="text-6xl font-bold leading-[0.95] text-white md:text-8xl">Louer un vélo</h1>
-        <p className="mt-2 text-white">{acc.name}{acc.city ? `, ${acc.city}` : ""}</p>
+        <h1 className="text-6xl font-bold leading-[0.95] text-white md:text-8xl">{counter ? "Réservez vos vélos" : "Louer un vélo"}</h1>
+        <p className="mt-2 text-white">{acc.name}{acc.city ? `, ${acc.city}` : ""}{counter ? " · retrait à la boutique" : ""}</p>
       </div>
     </section>
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
       {gallery.length > 0 && <ImageCarousel images={gallery} />}
+      {counter && (
+        <section className="flex flex-col gap-1 rounded-xl2 border border-line bg-white p-4">
+          <h2 className="font-display text-3xl font-bold text-forest">Retrait et retour à la boutique</h2>
+          {acc.address && <p>{acc.address}{acc.city ? `, ${acc.city}` : ""}</p>}
+          {acc.access_hours && <p>Horaires : {acc.access_hours}</p>}
+          {acc.access_instructions && <p className="text-sm">{acc.access_instructions}</p>}
+          <p className="text-sm">Votre réservation est confirmée dès le paiement : vos vélos vous attendent, réglés et prêts à partir.</p>
+        </section>
+      )}
       <TodayBanner accommodationId={acc.id} latitude={acc.latitude} longitude={acc.longitude} />
       <p className="rounded-xl2 bg-accent p-3 text-sm text-forest">
         Réservez à l'avance pour garantir la disponibilité de votre vélo. La réservation le jour même reste possible selon les vélos libres.
@@ -105,7 +116,7 @@ export default async function AccommodationPage({
         <div className="lg:sticky lg:top-6 lg:col-span-2">
         <section className="flex flex-col gap-3 rounded-xl2 border border-line bg-white p-5 shadow-sm">
           <h2 className="font-display text-4xl font-bold text-forest">Qui roule ?</h2>
-          <p className="text-sm text-charcoal">Vous recevrez la confirmation et le code d'accès par e-mail.</p>
+          <p className="text-sm text-charcoal">{counter ? "Vous recevrez la confirmation par e-mail. Vos vélos sont à retirer à la boutique." : "Vous recevrez la confirmation et le code d'accès par e-mail."}</p>
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-sm">Prénom<input name="first_name" required autoComplete="given-name" className={input} /></label>
             <label className="flex flex-col gap-1 text-sm">Nom<input name="last_name" required autoComplete="family-name" className={input} /></label>

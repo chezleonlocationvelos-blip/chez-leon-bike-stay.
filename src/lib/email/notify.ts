@@ -13,13 +13,13 @@ async function load(id: string) {
   const db = createSupabaseServiceClient();
   const { data } = await db.from("reservations")
     .select(`id, number, start_at, end_at, total_cents, deposit_amount_cents, access_token_enc,
-             accommodations(name, slug), customers(first_name, last_name, email, phone),
+             accommodations(name, slug, mode, address, city, access_hours), customers(first_name, last_name, email, phone),
              reservation_items(quantity, unit_price_cents, bike_types(label)),
              reservation_accessories(quantity, unit_price_cents, accessories(label))`)
     .eq("id", id).maybeSingle();
   return data as unknown as {
     id: string; number: string; start_at: string; end_at: string; total_cents: number; deposit_amount_cents: number; access_token_enc: string | null;
-    accommodations: { name: string; slug: string }; customers: { first_name: string; last_name: string | null; email: string; phone: string | null };
+    accommodations: { name: string; slug: string; mode: string; address: string | null; city: string | null; access_hours: string | null }; customers: { first_name: string; last_name: string | null; email: string; phone: string | null };
     reservation_items: { quantity: number; unit_price_cents: number; bike_types: { label: string } }[];
     reservation_accessories: { quantity: number; unit_price_cents: number; accessories: { label: string } }[];
   } | null;
@@ -41,6 +41,9 @@ export async function notify(reservationId: string, kind: Kind): Promise<"sent" 
       firstName: r.customers.first_name, number: r.number, accommodation: r.accommodations.name,
       startLabel: formatParis(r.start_at), endLabel: formatParis(r.end_at),
       link: `${appUrl()}/r/${decrypt(r.access_token_enc)}`,
+      counter: r.accommodations.mode === "counter"
+        ? { address: [r.accommodations.address, r.accommodations.city].filter(Boolean).join(", ") || null, hours: r.accommodations.access_hours }
+        : undefined,
     };
     const msg = kind === "review_request"
       ? reviewRequestEmail({ firstName: base.firstName, accommodation: base.accommodation, number: base.number, link: base.link.replace("/r/", "/avis/") })

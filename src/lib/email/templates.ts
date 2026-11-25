@@ -4,7 +4,14 @@ import { euros } from "@/lib/format";
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-type Base = { firstName: string; number: string; accommodation: string; startLabel: string; endLabel: string; link: string };
+type Base = { firstName: string; number: string; accommodation: string; startLabel: string; endLabel: string; link: string;
+  /** Boutique Chez Léon : retrait au comptoir (adresse et horaires), pas de code d'accès. */
+  counter?: { address?: string | null; hours?: string | null } };
+
+const pickupHtml = (c: NonNullable<Base["counter"]>) =>
+  `<p style="background:#F4EBDB;border-radius:3px;padding:12px 16px;margin:16px 0"><strong>Retrait et retour à la boutique</strong>${c.address ? `<br>${esc(c.address)}` : ""}${c.hours ? `<br>Horaires : ${esc(c.hours)}` : ""}<br>Présentez simplement votre numéro de réservation.</p>`;
+const pickupText = (c: NonNullable<Base["counter"]>) =>
+  `Retrait et retour à la boutique${c.address ? ` : ${c.address}` : ""}${c.hours ? ` (horaires : ${c.hours})` : ""}. Présentez votre numéro de réservation.`;
 export type ConfirmationData = Base & { tip?: string; lines: { label: string; qty: number; totalCents: number }[]; totalCents: number; depositCents: number };
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bike.chezleonlocation.com";
@@ -27,22 +34,24 @@ const button = (href: string, label: string) =>
 export function confirmationEmail(d: ConfirmationData) {
   const rows = d.lines.map((l) => `<tr><td>${l.qty} × ${esc(l.label)}</td><td style="text-align:right">${euros(l.totalCents)}</td></tr>`).join("");
   const html = wrap(`Réservation ${d.number} confirmée`,
-    `<p>Bonjour ${esc(d.firstName)}, bienvenue chez Léon ! Votre paiement est bien reçu et votre séjour à <strong>${esc(d.accommodation)}</strong> se prépare.</p>
+    `<p>Bonjour ${esc(d.firstName)}, bienvenue chez Léon ! Votre paiement est bien reçu ${d.counter ? "et vos vélos vous attendent à la boutique." : `et votre séjour à <strong>${esc(d.accommodation)}</strong> se prépare.`}</p>
      ${d.tip ? `<p style="background:#F4EBDB;border-radius:3px;padding:12px 16px;margin:16px 0"><strong>Le conseil de Léon</strong><br>${esc(d.tip)}</p>` : ""}
      <p><strong>${esc(d.accommodation)}</strong><br>Du ${esc(d.startLabel)}<br>Au ${esc(d.endLabel)}</p>
      <table style="width:100%;border-collapse:collapse">${rows}<tr><td><strong>Total payé</strong></td><td style="text-align:right"><strong>${euros(d.totalCents)}</strong></td></tr></table>
-     <p><strong>Caution : ${euros(d.depositCents)}</strong> (empreinte bancaire, rien n'est débité). Vous l'autoriserez depuis votre page de réservation dans les 24 h précédant le retrait : c'est elle qui débloque votre code d'accès.</p>
+     ${d.counter ? pickupHtml(d.counter) : ""}
+     <p><strong>Caution : ${euros(d.depositCents)}</strong> (empreinte bancaire, rien n'est débité). Vous l'autoriserez depuis votre page de réservation dans les 24 h précédant le retrait${d.counter ? " : le retrait à la boutique sera plus rapide." : " : c'est elle qui débloque votre code d'accès."}</p>
      ${button(d.link, "Ouvrir ma réservation")}`);
-  const text = `Réservation ${d.number} confirmée.\nBienvenue chez Léon, ${d.firstName} !${d.tip ? `\nLe conseil de Léon : ${d.tip}` : ""}\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\nCaution : ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité), à autoriser dans les 24 h avant le retrait.\nMa réservation : ${d.link}`;
+  const text = `Réservation ${d.number} confirmée.\nBienvenue chez Léon, ${d.firstName} !${d.tip ? `\nLe conseil de Léon : ${d.tip}` : ""}\n${d.accommodation}\nDu ${d.startLabel}\nAu ${d.endLabel}\nTotal payé : ${euros(d.totalCents)}\n${d.counter ? `${pickupText(d.counter)}\n` : ""}Caution : ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité), à autoriser dans les 24 h avant le retrait.\nMa réservation : ${d.link}`;
   return { subject: `Votre réservation ${d.number} est confirmée`, html, text };
 }
 
 export function depositReminderEmail(d: Base & { depositCents: number }) {
   const html = wrap("Autorisez votre caution pour retirer votre vélo",
     `<p>Bonjour ${esc(d.firstName)}, votre location ${esc(d.number)} commence bientôt (${esc(d.startLabel)}, ${esc(d.accommodation)}).</p>
-     <p>Pour recevoir votre code d'accès, autorisez la caution de <strong>${euros(d.depositCents)}</strong> : c'est une empreinte bancaire, rien n'est débité, et elle est libérée à la restitution du matériel en bon état.</p>
+     <p>${d.counter ? "Pour un retrait rapide à la boutique" : "Pour recevoir votre code d'accès"}, autorisez la caution de <strong>${euros(d.depositCents)}</strong> : c'est une empreinte bancaire, rien n'est débité, et elle est libérée à la restitution du matériel en bon état.</p>
+     ${d.counter ? pickupHtml(d.counter) : ""}
      ${button(d.link, "Autoriser la caution")}`);
-  const text = `Votre location ${d.number} commence bientôt (${d.startLabel}, ${d.accommodation}).\nAutorisez la caution de ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité) pour recevoir votre code d'accès :\n${d.link}`;
+  const text = `Votre location ${d.number} commence bientôt (${d.startLabel}, ${d.accommodation}).\nAutorisez la caution de ${euros(d.depositCents)} (empreinte bancaire, rien n'est débité) ${d.counter ? "pour un retrait rapide à la boutique" : "pour recevoir votre code d'accès"} :\n${d.link}${d.counter ? `\n${pickupText(d.counter)}` : ""}`;
   return { subject: `Demain : autorisez votre caution (${d.number})`, html, text };
 }
 

@@ -13,7 +13,7 @@ alter table public.reservation_items add column if not exists frame_size text;
 insert into public.accessories (code, label, daily_price_cents, is_included, is_enabled) values
   ('phone_holder', 'Support smartphone', 0, false, false),
   ('child_trailer', 'Remorque enfant', 0, false, false),
-  ('girafe', 'Girafe', 0, false, false)
+  ('girafe', 'Girafe (vélo suiveur)', 0, false, false)
 on conflict (code) do nothing;
 
 -- 4) Attribution des vélos : respecte la taille demandée quand il y en a une

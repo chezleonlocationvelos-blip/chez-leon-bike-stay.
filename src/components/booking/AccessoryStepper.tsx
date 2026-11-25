@@ -6,6 +6,7 @@ const HINTS: Record<string, string> = {
   pannier: "Pour emporter pique-nique et affaires",
   phone_holder: "Votre GPS sous les yeux, au guidon",
   child_trailer: "Pour emmener les plus petits",
+  girafe: "Demi-vélo accroché au vôtre : l'enfant pédale en toute sécurité",
 };
 
 /** Accessoire facultatif avec compteur (champ acc_<code>), plafonné au stock du point de location. */

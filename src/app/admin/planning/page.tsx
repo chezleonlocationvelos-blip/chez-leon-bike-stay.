@@ -65,7 +65,7 @@ export default async function PlanningPage({ searchParams }: { searchParams: Pro
         </div>
         <form className="flex flex-wrap items-center gap-2">
           <select name="acc" defaultValue={acc.id} className="min-h-10 rounded-xl2 border border-line bg-white px-3">
-            {list.map((a) => <option key={a.id} value={a.id}>{a.mode === "counter" ? `🏪 ${a.name}` : a.name}</option>)}
+            {list.map((a) => <option key={a.id} value={a.id}>{a.mode === "counter" ? `Boutique · ${a.name}` : a.name}</option>)}
           </select>
           <input type="date" name="from" defaultValue={from} className="min-h-10 rounded-xl2 border border-line bg-white px-3" />
           <button className="min-h-10 rounded-xl2 bg-forest px-4 text-white">Afficher</button>

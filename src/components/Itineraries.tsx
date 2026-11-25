@@ -1,3 +1,4 @@
+import { LineIcon } from "@/components/LineIcon";
 import { itinerariesFor, mapsUrl } from "@/lib/itineraries";
 
 /**
@@ -28,7 +29,7 @@ export function Itineraries({
               <span>{it.km} km</span><span>{it.duration}</span><span>{it.level}</span>
             </p>
             <p className="text-sm text-charcoal">{it.summary}</p>
-            <p className="text-sm text-charcoal/80">💡 {it.tip}</p>
+            <p className="flex gap-1.5 text-sm text-charcoal/80"><LineIcon name="idea" className="mt-0.5 h-4 w-4 text-sage" /><span>{it.tip}</span></p>
             <div className="mt-auto flex flex-col gap-1 pt-2">
               {unlocked && origin && (
                 <a

@@ -1,4 +1,5 @@
 import { createSupabaseServiceClient } from "@/lib/supabase/admin";
+import { LineIcon, type LineIconName } from "@/components/LineIcon";
 
 type Weather = { code: number; tmax: number; rain: number; hour: number };
 
@@ -20,17 +21,17 @@ async function fetchWeather(lat: number, lng: number): Promise<Weather | null> {
   }
 }
 
-function describe(w: Weather): { icon: string; label: string; nice: boolean } {
+function describe(w: Weather): { icon: LineIconName; label: string; nice: boolean } {
   const c = w.code;
-  if (c === 0) return { icon: "☀️", label: "grand soleil", nice: true };
-  if (c <= 2) return { icon: "🌤️", label: "plutôt ensoleillé", nice: true };
-  if (c === 3) return { icon: "☁️", label: "ciel couvert", nice: w.rain < 40 };
-  if (c === 45 || c === 48) return { icon: "🌫️", label: "brouillard", nice: false };
-  if (c >= 51 && c <= 67) return { icon: "🌧️", label: "pluie", nice: false };
-  if (c >= 71 && c <= 77) return { icon: "❄️", label: "neige", nice: false };
-  if (c >= 80 && c <= 82) return { icon: "🌦️", label: "averses", nice: false };
-  if (c >= 95) return { icon: "⛈️", label: "orages", nice: false };
-  return { icon: "⛅", label: "temps variable", nice: w.rain < 40 };
+  if (c === 0) return { icon: "sun", label: "grand soleil", nice: true };
+  if (c <= 2) return { icon: "sunCloud", label: "plutôt ensoleillé", nice: true };
+  if (c === 3) return { icon: "cloud", label: "ciel couvert", nice: w.rain < 40 };
+  if (c === 45 || c === 48) return { icon: "fog", label: "brouillard", nice: false };
+  if (c >= 51 && c <= 67) return { icon: "rain", label: "pluie", nice: false };
+  if (c >= 71 && c <= 77) return { icon: "snow", label: "neige", nice: false };
+  if (c >= 80 && c <= 82) return { icon: "showers", label: "averses", nice: false };
+  if (c >= 95) return { icon: "storm", label: "orages", nice: false };
+  return { icon: "sunCloud", label: "temps variable", nice: w.rain < 40 };
 }
 
 /** Nombre de vélos libres d'ici la fin de la journée, par type. */
@@ -83,7 +84,7 @@ export async function TodayBanner({
   }
 
   let headline = "Aujourd'hui";
-  let icon = "🚲";
+  let icon: LineIconName = "bike";
   let detail = "";
   if (weather) {
     const d = describe(weather);
@@ -101,7 +102,7 @@ export async function TodayBanner({
         <p className="text-xs font-bold uppercase tracking-wide text-sage">La météo de Snookie</p>
         <p className="mb-1 text-[11px] italic text-charcoal/70">la nouvelle Madame Irma</p>
         <p>
-          <span aria-hidden="true" className="mr-1 text-xl">{icon}</span>
+          <LineIcon name={icon} className="mr-1.5 inline h-6 w-6 -translate-y-0.5 text-sage" />
           <strong>{headline}</strong>{detail ? ` (${detail})` : ""}{stock ? ` : ${stock.charAt(0).toLowerCase()}${stock.slice(1)}` : ""}
         </p>
       </div>

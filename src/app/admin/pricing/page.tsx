@@ -45,22 +45,9 @@ export default async function PricingPage({ searchParams }: { searchParams: Prom
         </form>
       ))}
 
-      <h2 className="mt-2 text-xl font-bold text-forest">Accessoires payants</h2>
-      <p className="text-sm">
-        Prix par jour (une demi-journée compte pour un jour). Un accessoire coché n'apparaît que sur les pages où vous avez saisi
-        un stock (fiche de la boutique ou de l'hébergement, rubrique « Stock d'accessoires »). Casques et antivols restent inclus.
+      <p className="rounded-xl2 bg-white p-4 text-sm">
+        Les accessoires (prix, activation et stock) se gèrent dans <a className="font-bold underline" href="/admin/bikes/accessoires">Vélos et accessoires → Accessoires</a>.
       </p>
-      {(accessories ?? []).map((a) => (
-        <form key={a.id} action={updateAccessory} className="flex flex-wrap items-end gap-4 rounded-xl2 bg-white p-4">
-          <input type="hidden" name="id" value={a.id} />
-          <label className="flex flex-col gap-1 text-sm">Nom affiché
-            <input name="label" required defaultValue={a.label} className="min-h-12 w-56 rounded-xl2 border border-line bg-white px-4" /></label>
-          <label className="flex flex-col gap-1 text-sm">Prix par jour (€)
-            <input name="price_eur" type="number" step="0.01" min="0" required defaultValue={a.daily_price_cents / 100} className={input} /></label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_enabled" defaultChecked={a.is_enabled} className="h-5 w-5" /> Proposé à la location</label>
-          <Button type="submit">Enregistrer</Button>
-        </form>
-      ))}
 
       <form action={updateMaxDeposit} className="flex flex-wrap items-end gap-4 rounded-xl2 bg-white p-4">
         <div className="min-w-40 font-medium">Plafond de caution par réservation (optionnel)</div>

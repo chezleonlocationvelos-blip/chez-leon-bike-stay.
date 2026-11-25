@@ -1,3 +1,4 @@
+import { BikesTabs } from "@/components/admin/BikesTabs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
@@ -159,6 +160,7 @@ export default async function BikesPage({ searchParams }: { searchParams: Promis
 
   return (
     <section>
+      <BikesTabs current="bikes" />
       <div className="mb-4 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-forest">{t.title}</h1>
         <Link href="/admin/bikes/new" className="rounded-xl2 bg-forest px-5 py-3 text-white">Ajouter</Link>
